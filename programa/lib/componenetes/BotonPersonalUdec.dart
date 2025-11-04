@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:programa/Styles/Text.dart';
 import 'package:programa/Styles/app_colors.dart';
@@ -89,7 +87,6 @@ class BotonVentanaPersonaRutas {
     required bool personal,
     required bool tipoDeObjeto,
   }) {
-    // tipoDeObjeto == false → perdido | true → encontrado (ajústalo si usas al revés)
     final esEncontrado = tipoDeObjeto;
     final esPersona = personal;
 
@@ -136,8 +133,8 @@ class BotonVentanaPersona extends StatelessWidget {
       children: [
         if (busy) ...[
           const SizedBox(
-            width: 18,
-            height: 18,
+            width: 10,
+            height: 10,
             child: CircularProgressIndicator(strokeWidth: 2),
           ),
           const SizedBox(width: 8),
@@ -162,7 +159,7 @@ class BotonVentanaPersona extends StatelessWidget {
     );
 
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(5.0),
       child: tooltip == null
           ? button
           : Tooltip(message: tooltip!, child: button),

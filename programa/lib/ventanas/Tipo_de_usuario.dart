@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:programa/Styles/Text.dart';
 import 'package:programa/Styles/appBar.dart';
-import 'package:programa/Styles/app_colors.dart';
-import 'package:programa/componenetes/BotonPersonalUdec.dart';
 
+import 'package:programa/componenetes/BotonPersonalUdec.dart';
+import 'package:programa/ventanas/Ventana_inicio_de_usuario.dart'; // si aquí vive BotonVentanaPersona
+import 'package:programa/ventanas/agregar_reporte_screen.dart';
+
+// ✅ Define el WIDGET correcto
 class VentanaDeReporteObjeto extends StatefulWidget {
   const VentanaDeReporteObjeto({super.key});
 
@@ -11,10 +13,27 @@ class VentanaDeReporteObjeto extends StatefulWidget {
   State<VentanaDeReporteObjeto> createState() => _VentanaDeReporteObjetoState();
 }
 
+// ✅ Y su STATE asociado
 class _VentanaDeReporteObjetoState extends State<VentanaDeReporteObjeto> {
   bool esPersona = false;
-  bool TipoDeOjbeto = false;
-  bool icon = false;
+  bool tipoDeObjeto = false;
+
+  void _abrirFormulario() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => AgregarReporteScreen(
+          personalUdec: esPersona,
+          esEncontrado: tipoDeObjeto,
+          onReporteAgregado: (reporte) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text('Reporte agregado')));
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final bg = Theme.of(context).colorScheme.background;
@@ -30,7 +49,7 @@ class _VentanaDeReporteObjetoState extends State<VentanaDeReporteObjeto> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: BotonDeTipoDeUsuario(
-                  value: esPersona, // bool en el State del padre
+                  value: esPersona,
                   onChanged: (v) => setState(() => esPersona = v),
                   pregunta: '¿Cómo estás relacionado con el campus?',
                   opcion1: 'Estudiante',
@@ -40,27 +59,62 @@ class _VentanaDeReporteObjetoState extends State<VentanaDeReporteObjeto> {
                 ),
               ),
               BotonDeTipoDeUsuario(
-                value: TipoDeOjbeto,
-                onChanged: (v) => setState(() => TipoDeOjbeto = v),
-                pregunta: 'Qué tipo de reporte quiere realizar',
+                value: tipoDeObjeto,
+                onChanged: (v) => setState(() => tipoDeObjeto = v),
+                pregunta: '¿Qué tipo de reporte quiere realizar?',
                 opcion1: 'Quiero reportar un objeto perdido',
                 opcion2: 'Quiero reportar un objeto encontrado',
                 icono1: Icons.search,
                 icono2: Icons.find_in_page,
               ),
-              /* BotonVentanaPersona(
+              // Puedes usar _abrirFormulario() directo o tus rutas
+              BotonVentanaPersona(
                 texto: "Realizar reporte",
                 personal: esPersona,
-                tipoDeObjeto: TipoDeOjbeto, // tu boolean actual
+                tipoDeObjeto: tipoDeObjeto,
                 rutas: BotonVentanaPersonaRutas(
-                  perdidoEstudiante: (_) => FormularioPerdidoEstudiante(),
-                  perdidoPersona: (_) => FormularioPerdidoPersona(),
-                  encontradoEstudiante: (_) => FormularioEncontradoEstudiante(),
-                  encontradoPersona: (_) => FormularioEncontradoPersona(),
+                  perdidoEstudiante: (_) => AgregarReporteScreen(
+                    personalUdec: true,
+                    esEncontrado: false,
+                    onReporteAgregado: (r) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Reporte agregado')),
+                      );
+                    },
+                  ),
+                  perdidoPersona: (_) => AgregarReporteScreen(
+                    personalUdec: false,
+                    esEncontrado: false,
+                    onReporteAgregado: (r) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Reporte agregado')),
+                      );
+                    },
+                  ),
+                  encontradoEstudiante: (_) => AgregarReporteScreen(
+                    personalUdec: true,
+                    esEncontrado: true,
+                    onReporteAgregado: (r) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Reporte agregado')),
+                      );
+                    },
+                  ),
+                  encontradoPersona: (_) => AgregarReporteScreen(
+                    personalUdec: false,
+                    esEncontrado: true,
+                    onReporteAgregado: (r) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Reporte agregado')),
+                      );
+                    },
+                  ),
                 ),
-                icono: Icons.send, // opcional
-                tooltip: "Ir al formulario", // opcional
-              ),*/
+                icono: Icons.send,
+                tooltip: "Ir al formulario",
+              ),
+              // Si prefieres un botón simple que use _abrirFormulario():
+              // ElevatedButton(onPressed: _abrirFormulario, child: const Text('Realizar reporte')),
             ],
           ),
         ),

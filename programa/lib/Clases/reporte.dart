@@ -6,6 +6,8 @@ class Reporte {
   final bool encontrado;
   final String nombreUsuario;
   final String contactoUsuario;
+  final bool PersonalUdec;
+  final bool tipoObjeto;
 
   Reporte({
     required this.nombre,
@@ -15,5 +17,7 @@ class Reporte {
     this.descripcion = '',
     this.nombreUsuario = '',
     this.contactoUsuario = '',
+    required this.PersonalUdec,
+    required this.tipoObjeto,
   });
 }
