@@ -72,49 +72,100 @@ class BotonDeTipoDeUsuario extends StatelessWidget {
 }
 
 //boton de si quieres reportar un objeto perdido o encontrado
-class BotonTipoDeReporte extends StatelessWidget {
-  const BotonTipoDeReporte({super.key});
+class BotonVentanaPersonaRutas {
+  final WidgetBuilder? perdidoEstudiante;
+  final WidgetBuilder? perdidoPersona;
+  final WidgetBuilder? encontradoEstudiante;
+  final WidgetBuilder? encontradoPersona;
 
-  @override
-  Widget build(BuildContext context) {
-    return Placeholder();
+  const BotonVentanaPersonaRutas({
+    this.perdidoEstudiante,
+    this.perdidoPersona,
+    this.encontradoEstudiante,
+    this.encontradoPersona,
+  });
+
+  WidgetBuilder? resolver({
+    required bool personal,
+    required bool tipoDeObjeto,
+  }) {
+    // tipoDeObjeto == false → perdido | true → encontrado (ajústalo si usas al revés)
+    final esEncontrado = tipoDeObjeto;
+    final esPersona = personal;
+
+    if (!esEncontrado && !esPersona) return perdidoEstudiante;
+    if (!esEncontrado && esPersona) return perdidoPersona;
+    if (esEncontrado && !esPersona) return encontradoEstudiante;
+    if (esEncontrado && esPersona) return encontradoPersona;
+    return null;
   }
 }
 
-/// Botón reutilizable; corrige el tipo `Bool` -> `bool`
+/// Botón CTA que navega según `personal` y `tipoDeObjeto`.
 class BotonVentanaPersona extends StatelessWidget {
-  final WidgetBuilder navegar;
   final String texto;
-  final bool personal; // true: persona, false: estudiante (si lo necesitas)
+  final bool personal; // true: Persona | false: Estudiante
+  final bool tipoDeObjeto; // false: Perdido | true: Encontrado
+  final BotonVentanaPersonaRutas rutas;
+
+  final bool busy; // opcional: loading
+  final IconData? icono; // opcional
+  final String? tooltip; // opcional
 
   const BotonVentanaPersona({
     super.key,
-    required this.navegar,
     required this.texto,
     required this.personal,
+    required this.tipoDeObjeto,
+    required this.rutas,
+    this.busy = false,
+    this.icono,
+    this.tooltip,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(12.0),
-      child: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            if (personal) {
-              Navigator.push(context, MaterialPageRoute(builder: navegar));
-            }
-          },
-          style: ElevatedButton.styleFrom(
-            minimumSize: const Size(200, 48),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+    final destino = rutas.resolver(
+      personal: personal,
+      tipoDeObjeto: tipoDeObjeto,
+    );
+    final enabled = !busy && destino != null;
+
+    final child = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (busy) ...[
+          const SizedBox(
+            width: 18,
+            height: 18,
+            child: CircularProgressIndicator(strokeWidth: 2),
           ),
-          child: Text(texto),
-        ),
+          const SizedBox(width: 8),
+        ] else if (icono != null) ...[
+          Icon(icono),
+          const SizedBox(width: 8),
+        ],
+        Text(texto),
+      ],
+    );
+
+    final button = ElevatedButton(
+      onPressed: enabled
+          ? () =>
+                Navigator.of(context).push(MaterialPageRoute(builder: destino!))
+          : null,
+      style: ElevatedButton.styleFrom(
+        minimumSize: const Size(220, 48),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
+      child: child,
+    );
+
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: tooltip == null
+          ? button
+          : Tooltip(message: tooltip!, child: button),
     );
   }
 }

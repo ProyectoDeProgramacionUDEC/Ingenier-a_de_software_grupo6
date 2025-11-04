@@ -48,6 +48,19 @@ class _VentanaDeReporteObjetoState extends State<VentanaDeReporteObjeto> {
                 icono1: Icons.search,
                 icono2: Icons.find_in_page,
               ),
+              /* BotonVentanaPersona(
+                texto: "Realizar reporte",
+                personal: esPersona,
+                tipoDeObjeto: TipoDeOjbeto, // tu boolean actual
+                rutas: BotonVentanaPersonaRutas(
+                  perdidoEstudiante: (_) => FormularioPerdidoEstudiante(),
+                  perdidoPersona: (_) => FormularioPerdidoPersona(),
+                  encontradoEstudiante: (_) => FormularioEncontradoEstudiante(),
+                  encontradoPersona: (_) => FormularioEncontradoPersona(),
+                ),
+                icono: Icons.send, // opcional
+                tooltip: "Ir al formulario", // opcional
+              ),*/
             ],
           ),
         ),
