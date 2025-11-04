@@ -1,0 +1,19 @@
+# sprint review
+1. ¿Qué debemos comenzar a hacer?
+  1. Comenzar a realizar revisiones entre pares del código realizado.
+  2. Variar el liderazgo de cada reunión, para evitar que se estanque el progreso.
+  3. Exigir retroalimentación de otras fuentes (Profesores)
+2. ¿Que debemos hacer más?
+  1. Detallar más los criterios de aceptación de las tareas.
+  2. Comunicarnos más en el desarrollo real que solo en los objetivos a realizar.
+  3. Definir con mayor detalle la visión de cada sprint.
+4. ¿Que debemos hacer menos?
+  1. Trabajar de forma tan individual que complique la implementación de todas las partes en conjunto.
+  2. Reducir el alargue de las Daily Meetings, para evitar la pérdida de tiempo.
+  3. Reducir la codependencia entre tareas con tal de paralelizar el trabajo.
+4. ¿Que debemos dejar de hacer?
+  1. Dejar de crear historias con un alcance tan extenso, que complica el desarrollo de las tareas al aumentar la interpretación.
+5. ¿Que debemos continuar haciendo?
+  1. Continuar con las constantes Daily meetings.
+  2. Continuar con la documentación continua de nuestros avances.
+  3. Continuar con la comunicación en la toma de decisiones con el resto del grupo.
