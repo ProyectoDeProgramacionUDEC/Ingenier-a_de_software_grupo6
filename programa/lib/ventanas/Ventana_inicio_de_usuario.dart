@@ -4,7 +4,6 @@ import 'package:programa/Styles/app_colors.dart';
 import 'package:programa/ventanas/Administrador.dart';
 import 'package:programa/ventanas/Tipo_de_usuario.dart';
 import 'package:programa/ventanas/objetos_perdidos_screen.dart';
-import 'package:programa/ventanas/Tipo_de_usuario.dart';
 
 class VentanaInicioDeUsuario extends StatelessWidget {
   const VentanaInicioDeUsuario({super.key});
@@ -20,7 +19,7 @@ class VentanaInicioDeUsuario extends StatelessWidget {
           texto: "REPORTAR OBJETO",
         ),
         BotonVentanaInicio(
-          navegar: (context) => const PerdidosScreen(todosLosReportes: []),
+          navegar: (context) => const PerdidosScreen(),
           texto: "VER OBJETOS",
         ),
         BotonVentanaInicio(
@@ -33,7 +32,7 @@ class VentanaInicioDeUsuario extends StatelessWidget {
 }
 
 class BotonVentanaInicio extends StatelessWidget {
-  final WidgetBuilder navegar; // antes: Widget navegar
+  final WidgetBuilder navegar;
   final String texto;
 
   const BotonVentanaInicio({

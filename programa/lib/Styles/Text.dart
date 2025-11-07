@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
 class TextStyles {
-  /// Sans del sistema (similar a Open Sans):
-  /// Android: Roboto · iOS/macOS: SF/Helvetica · Web/Linux: sans genérica
   static const TextStyle sansBody = TextStyle(
     color: Colors.white,
     fontSize: 12,
@@ -22,7 +20,6 @@ class TextStyles {
     fontFamilyFallback: ['Helvetica Neue', 'Arial', 'Roboto'],
   );
 
-  /// Serif del sistema (por si la necesitas en otras pantallas):
   static const TextStyle serifBody = TextStyle(
     color: Colors.white,
     fontFamily: 'serif',

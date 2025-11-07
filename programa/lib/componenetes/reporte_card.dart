@@ -1,10 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:programa/Clases/reporte.dart';
+// ¡Importa la nueva pantalla que acabamos de crear!
+import 'package:programa/ventanas/detalle_reporte_screen.dart'; 
 
-class ReporteCard extends StatelessWidget {
+// 1. Convertimos a StatefulWidget
+class ReporteCard extends StatefulWidget {
   final Reporte reporte;
-
   const ReporteCard({super.key, required this.reporte});
+
+  @override
+  State<ReporteCard> createState() => _ReporteCardState();
+}
+
+class _ReporteCardState extends State<ReporteCard> {
+  
+  // 2. El "seguro" anti-spam
+  bool _isNavigating = false; 
 
   @override
   Widget build(BuildContext context) {
@@ -13,15 +24,47 @@ class ReporteCard extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
         leading: Image.network(
-          reporte.imagenUrl,
+          widget.reporte.imagenUrl, // <-- 3. Usamos 'widget.reporte'
           width: 60,
           height: 60,
           fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              width: 60, height: 60,
+              color: Colors.grey[200],
+              child: Icon(Icons.image, color: Colors.grey[400]),
+            );
+          },
         ),
-        title: Text(reporte.nombre),
+        title: Text(widget.reporte.nombre), // <-- 3. Usamos 'widget.reporte'
         subtitle: Text(
-          "Fecha: ${reporte.fecha.day}/${reporte.fecha.month}/${reporte.fecha.year}",
+          "Fecha: ${widget.reporte.fecha.day}/${widget.reporte.fecha.month}/${widget.reporte.fecha.year}",
         ),
+        
+        // --- 4. LA SOLUCIÓN AL CRASH Y AL "NO CLICK" ---
+        onTap: () async { 
+          
+          if (_isNavigating) return; // Si ya estoy navegando, ignora el click.
+
+          setState(() {
+            _isNavigating = true;
+          });
+
+          // Navega a la nueva pantalla de detalles
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => DetalleReporteScreen(reporte: widget.reporte),
+            ),
+          );
+
+          // Desactiva el seguro CUANDO EL USUARIO REGRESE
+          if (context.mounted) {
+            setState(() {
+              _isNavigating = false;
+            });
+          }
+        },
       ),
     );
   }

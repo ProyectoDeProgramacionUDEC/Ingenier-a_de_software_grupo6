@@ -4,7 +4,7 @@ import 'package:programa/Styles/app_colors.dart';
 
 /// Dos opciones: Estudiante | Persona (funcionario/visitante)
 
-//Boton para ver si eres de la universidad
+//Botón para ver si eres de la universidad
 class BotonDeTipoDeUsuario extends StatelessWidget {
   final bool value;
   final ValueChanged<bool> onChanged;
@@ -69,7 +69,7 @@ class BotonDeTipoDeUsuario extends StatelessWidget {
   }
 }
 
-//boton de si quieres reportar un objeto perdido o encontrado
+//Botón de si quieres reportar un objeto perdido o encontrado
 class BotonVentanaPersonaRutas {
   final WidgetBuilder? perdidoEstudiante;
   final WidgetBuilder? perdidoPersona;

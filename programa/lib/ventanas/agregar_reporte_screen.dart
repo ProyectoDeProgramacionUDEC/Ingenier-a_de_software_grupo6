@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:programa/Clases/reporte.dart';
+import 'package:programa/Clases/ReporteService.dart';
+import 'package:provider/provider.dart';
 
 class AgregarReporteScreen extends StatefulWidget {
-  final Function(Reporte) onReporteAgregado;
   final bool personalUdec; // true=Estudiante, false=Persona externa
   final bool esEncontrado; // true=Encontrado, false=Perdido
 
   const AgregarReporteScreen({
     super.key,
-    required this.onReporteAgregado,
     required this.esEncontrado,
     required this.personalUdec,
   });
@@ -67,8 +67,11 @@ class _AgregarReporteScreenState extends State<AgregarReporteScreen> {
         PersonalUdec: true,
         tipoObjeto: true,
       );
-
-      widget.onReporteAgregado(nuevoReporte);
+        Provider.of<ReporteService>(context, listen: false)
+          .agregarNuevoReporte(nuevoReporte);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Reporte agregado'))
+    );
       Navigator.of(context).pop();
     }
   }
