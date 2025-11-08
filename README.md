@@ -1,1 +1,9 @@
-This is a basic project you can use as a template for the course project. In particular, it comes with the necessary templates that will make it easier for you to manage issues in GitHub projects.
+# Aplicación para encontrar objetos perdidos (Ingeniería de software)
+Proyecto enfocado en la Ingenieria de Software y como aplicarla en el desarrollo de una aplicación 
+
+- Product Owner/Support Developer: Ignacio Contardo Brito
+- Scrum Master/Support Developer: Sebastian Nova Sanchez
+- Main Developer Team:
+  - Ariel Fernandez Fuentealba
+  - Cristobal Figueroa Morales
+  - Benjamín Díaz Ulloa
