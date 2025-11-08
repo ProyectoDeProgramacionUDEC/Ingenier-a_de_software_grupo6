@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:programa/Clases/reporte.dart';
 import 'package:programa/services/similitud_service.dart';
 import 'package:programa/widgets/coincidencia_card.dart';
+import 'package:programa/coincidencia.dart';
 
-class AvisosScreen extends StatelessWidget {
+class AvisosScreen extends StatefulWidget {
   final List<Reporte> todosLosReportes;
   final double similitudMinima;
 
@@ -14,11 +15,26 @@ class AvisosScreen extends StatelessWidget {
   });
 
   @override
+  State<AvisosScreen> createState() => _AvisosScreenState();
+}
+
+class _AvisosScreenState extends State<AvisosScreen> {
+  final Set<String> _coincidenciasOcultas = {};
+
+  String _getCoincidenciaId(Coincidencia c) {
+    return '${c.perdido.nombre}_${c.perdido.fecha}_${c.encontrado.nombre}_${c.encontrado.fecha}';
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final coincidencias = SimilitudService.encontrarCoincidencias(
-      todosLosReportes,
-      similitudMinima: similitudMinima,
+    final todasLasCoincidencias = SimilitudService.encontrarCoincidencias(
+      widget.todosLosReportes,
+      similitudMinima: widget.similitudMinima,
     );
+
+    final coincidencias = todasLasCoincidencias
+        .where((c) => !_coincidenciasOcultas.contains(_getCoincidenciaId(c)))
+        .toList();
 
     return coincidencias.isEmpty
         ? _buildEmptyState()
@@ -26,7 +42,15 @@ class AvisosScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 8),
             itemCount: coincidencias.length,
             itemBuilder: (context, index) {
-              return CoincidenciaCard(coincidencia: coincidencias[index]);
+              final coincidencia = coincidencias[index];
+              return CoincidenciaCard(
+                coincidencia: coincidencia,
+                onDelete: () {
+                  setState(() {
+                    _coincidenciasOcultas.add(_getCoincidenciaId(coincidencia));
+                  });
+                },
+              );
             },
           );
   }
