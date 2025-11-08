@@ -1,9 +1,8 @@
-import 'dart:js_interop';
 import 'package:flutter/material.dart';
-import 'package:programa/Clases/reporte.dart';
 import 'package:programa/Clases/reporte_list.dart';
 import 'package:programa/ventanas/agregar_reporte_screen.dart';
 import 'package:programa/Clases/ReporteService.dart';
+import 'package:programa/ventanas/avisos_screen.dart';
 import 'package:provider/provider.dart';
 
 class ReportesTabsScreen extends StatelessWidget {
@@ -23,7 +22,7 @@ class ReportesTabsScreen extends StatelessWidget {
         final encontrados = todosLosReportes.where((r) => r.encontrado).toList()
           ..sort((a, b) => b.fecha.compareTo(a.fecha));
         return DefaultTabController(
-          length: 2,
+          length: 3,
           child: Scaffold(
             appBar: AppBar(
               title: const Text("Reportes de Objetos"),
@@ -32,6 +31,7 @@ class ReportesTabsScreen extends StatelessWidget {
                 tabs: [
                   Tab(text: "Perdidos"),
                   Tab(text: "Encontrados"),
+                  Tab(text: "Avisos"),
                 ],
               ),
             ),
@@ -39,6 +39,7 @@ class ReportesTabsScreen extends StatelessWidget {
               children: [
                 ListaReportes(reportes: perdidos),
                 ListaReportes(reportes: encontrados),
+                AvisosScreen(todosLosReportes: todosLosReportes, similitudMinima: 0.6),
               ],
             ),
             floatingActionButton: FloatingActionButton(
