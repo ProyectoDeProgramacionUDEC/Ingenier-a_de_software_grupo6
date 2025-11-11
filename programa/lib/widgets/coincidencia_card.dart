@@ -4,8 +4,13 @@ import 'package:programa/Clases/reporte.dart';
 
 class CoincidenciaCard extends StatelessWidget {
   final Coincidencia coincidencia;
+  final VoidCallback? onDelete;
 
-  const CoincidenciaCard({super.key, required this.coincidencia});
+  const CoincidenciaCard({
+    super.key,
+    required this.coincidencia,
+    this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -31,22 +36,34 @@ class CoincidenciaCard extends StatelessWidget {
                     color: Colors.orange,
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.shade100,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    '$porcentaje% similar',
-                    style: TextStyle(
-                      color: Colors.orange.shade900,
-                      fontWeight: FontWeight.bold,
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.shade100,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        '$porcentaje% similar',
+                        style: TextStyle(
+                          color: Colors.orange.shade900,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
-                  ),
+                    if (onDelete != null) ...[
+                      const SizedBox(width: 8),
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: onDelete,
+                        tooltip: 'Borrar aviso',
+                      ),
+                    ],
+                  ],
                 ),
               ],
             ),
