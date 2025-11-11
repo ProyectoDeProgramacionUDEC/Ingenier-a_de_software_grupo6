@@ -20,4 +20,28 @@ class Reporte {
     required this.PersonalUdec,
     required this.tipoObjeto,
   });
+
+  Reporte copyWith({
+    String? nombre,
+    String? descripcion,
+    DateTime? fecha,
+    String? imagenUrl,
+    bool? encontrado,
+    String? nombreUsuario,
+    String? contactoUsuario,
+    bool? PersonalUdec,
+    bool? tipoObjeto,
+  }) {
+    return Reporte(
+      nombre: nombre ?? this.nombre,
+      fecha: fecha ?? this.fecha,
+      imagenUrl: imagenUrl ?? this.imagenUrl,
+      encontrado: encontrado ?? this.encontrado,
+      descripcion: descripcion ?? this.descripcion,
+      nombreUsuario: nombreUsuario ?? this.nombreUsuario,
+      contactoUsuario: contactoUsuario ?? this.contactoUsuario,
+      PersonalUdec: PersonalUdec ?? this.PersonalUdec,
+      tipoObjeto: tipoObjeto ?? this.tipoObjeto,
+    );
+  }
 }

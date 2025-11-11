@@ -6,10 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:programa/Clases/ReporteService.dart';
 
 class PerdidosScreen extends StatelessWidget {
-
-  const PerdidosScreen({
-    super.key, 
-  });
+  const PerdidosScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +16,12 @@ class PerdidosScreen extends StatelessWidget {
         final perdidos = todosLosReportes.where((r) => !r.encontrado).toList();
         return Scaffold(
           appBar: UdecAppBarRightLogo(title: "OBJETOS Perdidos"),
-          body: ListaReportes(reportes: perdidos),
+          body: ListaReportes(
+            reportes: perdidos,
+            onReporteChanged: (reporte, nuevoEstado) {
+              reporteService.actualizarEstadoReporte(reporte, nuevoEstado);
+            },
+          ),
         );
       },
     );

@@ -6,16 +6,15 @@ import 'package:programa/ventanas/avisos_screen.dart';
 import 'package:provider/provider.dart';
 
 class ReportesTabsScreen extends StatelessWidget {
-
-  const ReportesTabsScreen({
-    super.key,
-  });
+  const ReportesTabsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Consumer<ReporteService>(
       builder: (context, reporteService, child) {
-        print('¡PANTALLA DE LISTA REDIBUJADA! Mostrando ${reporteService.reportes.length} reportes.'); //debuger
+        print(
+          '¡PANTALLA DE LISTA REDIBUJADA! Mostrando ${reporteService.reportes.length} reportes.',
+        ); //debuger
         final todosLosReportes = reporteService.reportes;
         final perdidos = todosLosReportes.where((r) => !r.encontrado).toList()
           ..sort((a, b) => b.fecha.compareTo(a.fecha));
@@ -37,9 +36,28 @@ class ReportesTabsScreen extends StatelessWidget {
             ),
             body: TabBarView(
               children: [
-                ListaReportes(reportes: perdidos),
-                ListaReportes(reportes: encontrados),
-                AvisosScreen(todosLosReportes: todosLosReportes, similitudMinima: 0.6),
+                ListaReportes(
+                  reportes: perdidos,
+                  onReporteChanged: (reporte, nuevoEstado) {
+                    reporteService.actualizarEstadoReporte(
+                      reporte,
+                      nuevoEstado,
+                    );
+                  },
+                ),
+                ListaReportes(
+                  reportes: encontrados,
+                  onReporteChanged: (reporte, nuevoEstado) {
+                    reporteService.actualizarEstadoReporte(
+                      reporte,
+                      nuevoEstado,
+                    );
+                  },
+                ),
+                AvisosScreen(
+                  todosLosReportes: todosLosReportes,
+                  similitudMinima: 0.6,
+                ),
               ],
             ),
             floatingActionButton: FloatingActionButton(

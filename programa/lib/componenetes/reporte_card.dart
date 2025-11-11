@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:programa/Clases/reporte.dart';
 // ¡Importa la nueva pantalla que acabamos de crear!
-import 'package:programa/ventanas/detalle_reporte_screen.dart'; 
+import 'package:programa/ventanas/detalle_reporte_screen.dart';
 
 // 1. Convertimos a StatefulWidget
 class ReporteCard extends StatefulWidget {
   final Reporte reporte;
-  const ReporteCard({super.key, required this.reporte});
+  final ValueChanged<bool> onEncontradoChanged;
+  const ReporteCard({
+    super.key,
+    required this.reporte,
+    required this.onEncontradoChanged,
+  });
 
   @override
   State<ReporteCard> createState() => _ReporteCardState();
 }
 
 class _ReporteCardState extends State<ReporteCard> {
-  
   // 2. El "seguro" anti-spam
-  bool _isNavigating = false; 
-
+  bool _isNavigating = false;
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -30,7 +33,8 @@ class _ReporteCardState extends State<ReporteCard> {
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) {
             return Container(
-              width: 60, height: 60,
+              width: 60,
+              height: 60,
               color: Colors.grey[200],
               child: Icon(Icons.image, color: Colors.grey[400]),
             );
@@ -40,10 +44,9 @@ class _ReporteCardState extends State<ReporteCard> {
         subtitle: Text(
           "Fecha: ${widget.reporte.fecha.day}/${widget.reporte.fecha.month}/${widget.reporte.fecha.year}",
         ),
-        
+
         // --- 4. LA SOLUCIÓN AL CRASH Y AL "NO CLICK" ---
-        onTap: () async { 
-          
+        onTap: () async {
           if (_isNavigating) return; // Si ya estoy navegando, ignora el click.
 
           setState(() {
@@ -54,7 +57,8 @@ class _ReporteCardState extends State<ReporteCard> {
           await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => DetalleReporteScreen(reporte: widget.reporte),
+              builder: (context) =>
+                  DetalleReporteScreen(reporte: widget.reporte),
             ),
           );
 
@@ -65,6 +69,17 @@ class _ReporteCardState extends State<ReporteCard> {
             });
           }
         },
+        trailing: IconButton(
+          icon: Icon(
+            widget.reporte.encontrado
+                ? Icons.check_circle
+                : Icons.check_circle_outline,
+            color: widget.reporte.encontrado ? Colors.green : Colors.grey,
+          ),
+          onPressed: () {
+            widget.onEncontradoChanged(!widget.reporte.encontrado);
+          },
+        ),
       ),
     );
   }
