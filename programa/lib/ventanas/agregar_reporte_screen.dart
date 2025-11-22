@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:programa/Clases/reporte.dart';
 import 'package:programa/Clases/ReporteService.dart';
+import 'package:programa/services/user_service.dart';
 import 'package:provider/provider.dart';
 
 class AgregarReporteScreen extends StatefulWidget {
-  final bool personalUdec; // true=Estudiante, false=Persona externa
-  final bool esEncontrado; // true=Encontrado, false=Perdido
+  final bool personalUdec;
+  final bool esEncontrado;
 
   const AgregarReporteScreen({
     super.key,
@@ -26,6 +27,23 @@ class _AgregarReporteScreenState extends State<AgregarReporteScreen> {
 
   DateTime _fechaSeleccionada = DateTime.now();
   bool _encontrado = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarDatosUsuario();
+  }
+
+  void _cargarDatosUsuario() {
+    final userService = Provider.of<UserService>(context, listen: false);
+
+    if (userService.isLoggedIn && userService.usuarioLogueado != null) {
+      final usuario = userService.usuarioLogueado!;
+
+      _nombreUsuarioController.text = usuario.nombre;
+      _contactoUsuarioController.text = usuario.correoContacto;
+    }
+  }
 
   @override
   void dispose() {
@@ -54,6 +72,8 @@ class _AgregarReporteScreenState extends State<AgregarReporteScreen> {
 
   void _agregarReporte() {
     if (_formKey.currentState!.validate()) {
+      final userService = Provider.of<UserService>(context, listen: false);
+
       final nuevoReporte = Reporte(
         nombre: _nombreController.text,
         fecha: _fechaSeleccionada,
@@ -67,17 +87,23 @@ class _AgregarReporteScreenState extends State<AgregarReporteScreen> {
         PersonalUdec: true,
         tipoObjeto: true,
       );
-        Provider.of<ReporteService>(context, listen: false)
-          .agregarNuevoReporte(nuevoReporte);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Reporte agregado'))
-    );
+
+      Provider.of<ReporteService>(
+        context,
+        listen: false,
+      ).agregarNuevoReporte(nuevoReporte);
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Reporte agregado')));
       Navigator.of(context).pop();
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final userService = Provider.of<UserService>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Agregar Reporte'),
@@ -162,20 +188,28 @@ class _AgregarReporteScreenState extends State<AgregarReporteScreen> {
 
               TextFormField(
                 controller: _nombreUsuarioController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Tu nombre',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.person),
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.person),
+
+                  suffixIcon: userService.isLoggedIn
+                      ? const Icon(Icons.check_circle, color: Colors.green)
+                      : null,
                 ),
               ),
               const SizedBox(height: 16),
 
               TextFormField(
                 controller: _contactoUsuarioController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Teléfono o email',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.contact_phone),
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.contact_phone),
+
+                  suffixIcon: userService.isLoggedIn
+                      ? const Icon(Icons.check_circle, color: Colors.green)
+                      : null,
                 ),
                 keyboardType: TextInputType.emailAddress,
               ),
