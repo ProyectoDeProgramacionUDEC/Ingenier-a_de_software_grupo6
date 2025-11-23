@@ -1,33 +1,63 @@
 import 'package:flutter/material.dart';
 import 'package:programa/Clases/reporte.dart';
 import 'package:programa/Styles/appBar.dart';
-import 'package:programa/Styles/appBar.dart';
 import 'package:programa/Clases/informe.dart';
+import 'package:programa/ventanas/agregar_reporte_screen.dart';
 
 class DetalleReporteScreen extends StatelessWidget {
   final Reporte reporte;
+  final bool esAdministrador;
 
-  const DetalleReporteScreen({super.key, required this.reporte});
+  const DetalleReporteScreen({
+    super.key, 
+    required this.reporte,
+    this.esAdministrador = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: UdecAppBarRightLogo(title: "Detalle del Reporte"),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // 3. NAVEGA A LA VISTA PREVIA DEL PDF
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              // Le pasamos el mismo reporte que esta pantalla ya tiene
-              builder: (context) => PantallaVistaPrevia(reporte: reporte),
-            ),
-          );
-        },
-        backgroundColor: Colors.blue[800], // O tu color de app
-        foregroundColor: Colors.white,
-        tooltip: 'Generar Informe PDF',
-        child: const Icon(Icons.picture_as_pdf_outlined), // Icono de PDF
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            heroTag: 'editBtn',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AgregarReporteScreen(
+                    esEncontrado: reporte.encontrado,
+                    personalUdec: reporte.PersonalUdec,
+                    reporteParaEditar: reporte,
+                    esAdministrador: esAdministrador,
+                  ),
+                ),
+              );
+            },
+            backgroundColor: Colors.orange[700],
+            foregroundColor: Colors.white,
+            tooltip: 'Editar Reporte',
+            child: const Icon(Icons.edit),
+          ),
+          const SizedBox(height: 10),
+          FloatingActionButton(
+            heroTag: 'pdfBtn',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PantallaVistaPrevia(reporte: reporte),
+                ),
+              );
+            },
+            backgroundColor: Colors.blue[800],
+            foregroundColor: Colors.white,
+            tooltip: 'Generar Informe PDF',
+            child: const Icon(Icons.picture_as_pdf_outlined),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

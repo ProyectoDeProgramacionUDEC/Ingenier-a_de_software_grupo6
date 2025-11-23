@@ -4,13 +4,17 @@ import 'package:programa/Clases/ReporteService.dart';
 import 'package:provider/provider.dart';
 
 class AgregarReporteScreen extends StatefulWidget {
-  final bool personalUdec; // true=Estudiante, false=Persona externa
-  final bool esEncontrado; // true=Encontrado, false=Perdido
+  final bool personalUdec;
+  final bool esEncontrado;
+  final Reporte? reporteParaEditar;
+  final bool esAdministrador;
 
   const AgregarReporteScreen({
     super.key,
     required this.esEncontrado,
     required this.personalUdec,
+    this.reporteParaEditar,
+    this.esAdministrador = false,
   });
   @override
   State<AgregarReporteScreen> createState() => _AgregarReporteScreenState();
@@ -24,8 +28,25 @@ class _AgregarReporteScreenState extends State<AgregarReporteScreen> {
   final _contactoUsuarioController = TextEditingController();
   final _imagenUrlController = TextEditingController();
 
-  DateTime _fechaSeleccionada = DateTime.now();
-  bool _encontrado = false;
+  late DateTime _fechaSeleccionada;
+  late bool _encontrado;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.reporteParaEditar != null) {
+      _nombreController.text = widget.reporteParaEditar!.nombre;
+      _descripcionController.text = widget.reporteParaEditar!.descripcion;
+      _nombreUsuarioController.text = widget.reporteParaEditar!.nombreUsuario;
+      _contactoUsuarioController.text = widget.reporteParaEditar!.contactoUsuario;
+      _imagenUrlController.text = widget.reporteParaEditar!.imagenUrl;
+      _fechaSeleccionada = widget.reporteParaEditar!.fecha;
+      _encontrado = widget.reporteParaEditar!.encontrado;
+    } else {
+      _fechaSeleccionada = DateTime.now();
+      _encontrado = false;
+    }
+  }
 
   @override
   void dispose() {
@@ -64,23 +85,35 @@ class _AgregarReporteScreenState extends State<AgregarReporteScreen> {
         descripcion: _descripcionController.text,
         nombreUsuario: _nombreUsuarioController.text,
         contactoUsuario: _contactoUsuarioController.text,
-        PersonalUdec: true,
-        tipoObjeto: true,
+        PersonalUdec: widget.reporteParaEditar?.PersonalUdec ?? true,
+        tipoObjeto: widget.reporteParaEditar?.tipoObjeto ?? true,
       );
-        Provider.of<ReporteService>(context, listen: false)
-          .agregarNuevoReporte(nuevoReporte);
+      
+      final service = Provider.of<ReporteService>(context, listen: false);
+      
+      if (widget.reporteParaEditar != null) {
+        service.actualizarReporte(widget.reporteParaEditar!, nuevoReporte);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Reporte actualizado'))
+        );
+      } else {
+        service.agregarNuevoReporte(nuevoReporte);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Reporte agregado'))
-    );
+        );
+      }
+      
       Navigator.of(context).pop();
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final esEdicion = widget.reporteParaEditar != null;
+    
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Agregar Reporte'),
+        title: Text(esEdicion ? 'Editar Reporte' : 'Agregar Reporte'),
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
       ),
@@ -203,8 +236,8 @@ class _AgregarReporteScreenState extends State<AgregarReporteScreen> {
 
               ElevatedButton.icon(
                 onPressed: _agregarReporte,
-                icon: const Icon(Icons.add),
-                label: const Text('Agregar Reporte'),
+                icon: Icon(esEdicion ? Icons.save : Icons.add),
+                label: Text(esEdicion ? 'Guardar Cambios' : 'Agregar Reporte'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   foregroundColor: Colors.white,
