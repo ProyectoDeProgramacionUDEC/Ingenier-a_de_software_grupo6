@@ -6,7 +6,12 @@ import 'package:programa/ventanas/avisos_screen.dart';
 import 'package:provider/provider.dart';
 
 class ReportesTabsScreen extends StatelessWidget {
-  const ReportesTabsScreen({super.key});
+  final bool esAdministrador;
+  
+  const ReportesTabsScreen({
+    super.key,
+    this.esAdministrador = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +52,7 @@ class ReportesTabsScreen extends StatelessWidget {
                   onDeleteReporte: (reporte) {
                     reporteService.eliminarReporte(reporte);
                   },
+                  esAdministrador: esAdministrador,
                 ),
                 ListaReportes(
                   reportes: encontrados,
@@ -59,6 +65,7 @@ class ReportesTabsScreen extends StatelessWidget {
                   onDeleteReporte: (reporte) {
                     reporteService.eliminarReporte(reporte);
                   },
+                  esAdministrador: esAdministrador,
                 ),
                 AvisosScreen(
                   todosLosReportes: todosLosReportes,

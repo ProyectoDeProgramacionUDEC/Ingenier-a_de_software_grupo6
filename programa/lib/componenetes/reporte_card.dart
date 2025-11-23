@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:programa/Clases/reporte.dart';
-// ¡Importa la nueva pantalla que acabamos de crear!
 import 'package:programa/ventanas/detalle_reporte_screen.dart';
+import 'package:programa/ventanas/agregar_reporte_screen.dart';
 
 // 1. Convertimos a StatefulWidget
 class ReporteCard extends StatefulWidget {
   final Reporte reporte;
   final ValueChanged<bool> onEncontradoChanged;
-  final Function(Reporte) onDelete; // callback para eliminar
+  final Function(Reporte) onDelete;
+  final bool mostrarOpcionEliminar;
 
   const ReporteCard({
     super.key,
     required this.reporte,
     required this.onEncontradoChanged,
     required this.onDelete,
+    this.mostrarOpcionEliminar = false,
   });
 
   @override
@@ -87,49 +89,84 @@ class _ReporteCardState extends State<ReporteCard> {
               },
             ),
 
-            PopupMenuButton<String>(
-              onSelected: (value) async {
-                if (value == "delete") {
-                  final confirm = await showDialog<bool>(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text("Eliminar Reporte"),
-                      content: const Text(
-                          "¿Estás seguro de que deseas eliminar este reporte?"),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          child: const Text("Cancelar"),
+            if (widget.mostrarOpcionEliminar)
+              PopupMenuButton<String>(
+                onSelected: (value) async {
+                  if (value == "edit") {
+                    if (_isNavigating) return;
+
+                    setState(() {
+                      _isNavigating = true;
+                    });
+
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AgregarReporteScreen(
+                          esEncontrado: widget.reporte.encontrado,
+                          personalUdec: widget.reporte.PersonalUdec,
+                          reporteParaEditar: widget.reporte,
+                          esAdministrador: true,
                         ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, true),
-                          child: const Text(
-                            "Eliminar",
-                            style: TextStyle(color: Colors.red),
+                      ),
+                    );
+
+                    if (context.mounted) {
+                      setState(() {
+                        _isNavigating = false;
+                      });
+                    }
+                  } else if (value == "delete") {
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text("Eliminar Reporte"),
+                        content: const Text(
+                            "¿Estás seguro de que deseas eliminar este reporte?"),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: const Text("Cancelar"),
                           ),
-                        ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            child: const Text(
+                              "Eliminar",
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+
+                    if (confirm == true) {
+                      widget.onDelete(widget.reporte);
+                    }
+                  }
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: "edit",
+                    child: Row(
+                      children: const [
+                        Icon(Icons.edit, color: Colors.orange),
+                        SizedBox(width: 8),
+                        Text("Editar"),
                       ],
                     ),
-                  );
-
-                  if (confirm == true) {
-                    widget.onDelete(widget.reporte);
-                  }
-                }
-              },
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: "delete",
-                  child: Row(
-                    children: const [
-                      Icon(Icons.delete, color: Colors.red),
-                      SizedBox(width: 8),
-                      Text("Eliminar"),
-                    ],
                   ),
-                ),
-              ],
-            ),
+                  PopupMenuItem(
+                    value: "delete",
+                    child: Row(
+                      children: const [
+                        Icon(Icons.delete, color: Colors.red),
+                        SizedBox(width: 8),
+                        Text("Eliminar"),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
           ],
         ),
       ),

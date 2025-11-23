@@ -6,12 +6,14 @@ class ListaReportes extends StatelessWidget {
   final List<Reporte> reportes;
   final Function(Reporte, bool) onReporteChanged;
   final Function(Reporte) onDeleteReporte;
+  final bool esAdministrador;
 
   const ListaReportes({
     super.key,
     required this.reportes,
     required this.onReporteChanged,
     required this.onDeleteReporte,
+    this.esAdministrador = false,
   });
 
   @override
@@ -27,6 +29,7 @@ class ListaReportes extends StatelessWidget {
           onDelete: (reporte) {
             onDeleteReporte(reporte);
           },
+          mostrarOpcionEliminar: esAdministrador,
         );
       },
     );
