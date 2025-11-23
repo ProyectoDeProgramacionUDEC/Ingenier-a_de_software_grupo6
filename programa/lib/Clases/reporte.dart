@@ -1,4 +1,5 @@
 class Reporte {
+  final String id; // Identificador único del reporte
   final String nombre;
   final String descripcion;
   final DateTime fecha;
@@ -10,6 +11,7 @@ class Reporte {
   final bool tipoObjeto;
 
   Reporte({
+    String? id, // Opcional, se genera automáticamente si no se proporciona
     required this.nombre,
     required this.fecha,
     required this.imagenUrl,
@@ -19,9 +21,10 @@ class Reporte {
     this.contactoUsuario = '',
     required this.PersonalUdec,
     required this.tipoObjeto,
-  });
+  }) : id = id ?? DateTime.now().millisecondsSinceEpoch.toString();
 
   Reporte copyWith({
+    String? id,
     String? nombre,
     String? descripcion,
     DateTime? fecha,
@@ -33,6 +36,7 @@ class Reporte {
     bool? tipoObjeto,
   }) {
     return Reporte(
+      id: id ?? this.id,
       nombre: nombre ?? this.nombre,
       fecha: fecha ?? this.fecha,
       imagenUrl: imagenUrl ?? this.imagenUrl,

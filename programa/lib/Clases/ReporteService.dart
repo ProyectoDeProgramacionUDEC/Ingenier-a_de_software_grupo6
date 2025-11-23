@@ -40,4 +40,10 @@ class ReporteService extends ChangeNotifier {
     reportes.remove(reporte);
     notifyListeners();
   }
+
+  void actualizarReporte(Reporte reporteAntiguo, Reporte reporteNuevo) {
+    final index = _reportes.indexOf(reporteAntiguo);
+    _reportes[index] = reporteNuevo;
+    notifyListeners();
+  }
 }

@@ -6,6 +6,6 @@ class VentanaAdministrador extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const ReportesTabsScreen();
+    return const ReportesTabsScreen(esAdministrador: true);
   }
 }
