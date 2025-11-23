@@ -21,6 +21,9 @@ class PerdidosScreen extends StatelessWidget {
             onReporteChanged: (reporte, nuevoEstado) {
               reporteService.actualizarEstadoReporte(reporte, nuevoEstado);
             },
+            onDeleteReporte: (reporte) {
+              reporteService.eliminarReporte(reporte);
+            },
           ),
         );
       },

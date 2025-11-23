@@ -7,10 +7,13 @@ import 'package:programa/ventanas/detalle_reporte_screen.dart';
 class ReporteCard extends StatefulWidget {
   final Reporte reporte;
   final ValueChanged<bool> onEncontradoChanged;
+  final Function(Reporte) onDelete; // callback para eliminar
+
   const ReporteCard({
     super.key,
     required this.reporte,
     required this.onEncontradoChanged,
+    required this.onDelete,
   });
 
   @override
@@ -69,18 +72,68 @@ class _ReporteCardState extends State<ReporteCard> {
             });
           }
         },
-        trailing: IconButton(
-          icon: Icon(
-            widget.reporte.encontrado
-                ? Icons.check_circle
-                : Icons.check_circle_outline,
-            color: widget.reporte.encontrado ? Colors.green : Colors.grey,
-          ),
-          onPressed: () {
-            widget.onEncontradoChanged(!widget.reporte.encontrado);
-          },
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: Icon(
+                widget.reporte.encontrado
+                    ? Icons.check_circle
+                    : Icons.check_circle_outline,
+                color: widget.reporte.encontrado ? Colors.green : Colors.grey,
+              ),
+              onPressed: () {
+                widget.onEncontradoChanged(!widget.reporte.encontrado);
+              },
+            ),
+
+            PopupMenuButton<String>(
+              onSelected: (value) async {
+                if (value == "delete") {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text("Eliminar Reporte"),
+                      content: const Text(
+                          "¿Estás seguro de que deseas eliminar este reporte?"),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text("Cancelar"),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text(
+                            "Eliminar",
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirm == true) {
+                    widget.onDelete(widget.reporte);
+                  }
+                }
+              },
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: "delete",
+                  child: Row(
+                    children: const [
+                      Icon(Icons.delete, color: Colors.red),
+                      SizedBox(width: 8),
+                      Text("Eliminar"),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
   }
 }
+

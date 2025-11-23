@@ -5,11 +5,13 @@ import 'package:programa/componenetes/reporte_card.dart';
 class ListaReportes extends StatelessWidget {
   final List<Reporte> reportes;
   final Function(Reporte, bool) onReporteChanged;
+  final Function(Reporte) onDeleteReporte;
 
   const ListaReportes({
     super.key,
     required this.reportes,
     required this.onReporteChanged,
+    required this.onDeleteReporte,
   });
 
   @override
@@ -21,6 +23,9 @@ class ListaReportes extends StatelessWidget {
           reporte: reportes[index],
           onEncontradoChanged: (nuevoValor) {
             onReporteChanged(reportes[index], nuevoValor);
+          },
+          onDelete: (reporte) {
+            onDeleteReporte(reporte);
           },
         );
       },

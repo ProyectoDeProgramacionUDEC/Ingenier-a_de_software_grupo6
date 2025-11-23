@@ -44,6 +44,9 @@ class ReportesTabsScreen extends StatelessWidget {
                       nuevoEstado,
                     );
                   },
+                  onDeleteReporte: (reporte) {
+                    reporteService.eliminarReporte(reporte);
+                  },
                 ),
                 ListaReportes(
                   reportes: encontrados,
@@ -52,6 +55,9 @@ class ReportesTabsScreen extends StatelessWidget {
                       reporte,
                       nuevoEstado,
                     );
+                  },
+                  onDeleteReporte: (reporte) {
+                    reporteService.eliminarReporte(reporte);
                   },
                 ),
                 AvisosScreen(
@@ -82,3 +88,4 @@ class ReportesTabsScreen extends StatelessWidget {
     );
   }
 }
+

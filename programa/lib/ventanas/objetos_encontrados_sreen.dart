@@ -23,8 +23,10 @@ class EncontradosScreen extends StatelessWidget {
           body: ListaReportes(
             reportes: encontrados,
             onReporteChanged: (reporte, nuevoEstado) {
-              // Usamos la función del servicio que creamos
               reporteService.actualizarEstadoReporte(reporte, nuevoEstado);
+            },
+            onDeleteReporte: (reporte) {
+              reporteService.eliminarReporte(reporte);
             },
           ),
           // ---------------------------------

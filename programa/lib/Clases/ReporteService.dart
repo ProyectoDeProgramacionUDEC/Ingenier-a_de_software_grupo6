@@ -35,4 +35,9 @@ class ReporteService extends ChangeNotifier {
     //Próximam3ente: Implementar respaldo en Hive
     print('Respaldando ${_reportes.length} reportes en Hive...');
   }
+
+  void eliminarReporte(Reporte reporte) {
+    reportes.remove(reporte);
+    notifyListeners();
+  }
 }
