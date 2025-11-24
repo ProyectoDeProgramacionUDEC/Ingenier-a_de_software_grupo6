@@ -15,6 +15,8 @@ dependencies:
   printing: ^5.14.2
   provider: ^6.0.5
   string_similarity: ^2.0.0
+  video_player: ^2.8.1
+  video_player_win: ^3.2.2
 
 dev_dependencies:
   flutter_test:
@@ -25,3 +27,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    - assets/videos/
