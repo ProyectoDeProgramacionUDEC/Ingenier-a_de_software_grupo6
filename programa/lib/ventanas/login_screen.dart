@@ -19,7 +19,46 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _rutController = TextEditingController();
 
-  void _iniciarSesion(BuildContext context) {
+  void _mostrarDialogoUsuarioNoRegistrado(String rutIngresado) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          icon: const Icon(Icons.person_add, color: AppColors.primay, size: 40),
+          title: const Text("Usuario no encontrado", style: TextStyle(fontWeight: FontWeight.bold)),
+          content: Text(
+            "El RUT $rutIngresado no aparece en nuestros registros.\n\n¿Te gustaría crear una cuenta nueva?",
+            textAlign: TextAlign.center,
+          ),
+          actions: [
+            // Opción 1: Cancelar (quizás escribió mal el RUT)
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Intentar de nuevo"),
+            ),
+            
+            // Opción 2: Ir a registrarse
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primay,
+                foregroundColor: AppColors.secondary,
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(); // Cierra el diálogo
+                // Navega a la pantalla de registro
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const RegistroScreen()),
+                );
+              },
+              child: const Text("Registrarme"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+void _iniciarSesion(BuildContext context) {
     final rut = _rutController.text.trim();
 
     if (rut.isEmpty) {
@@ -28,6 +67,8 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     final userService = Provider.of<UserService>(context, listen: false);
+    
+    // Intentamos loguear
     final loginExitoso = userService.login(rut);
 
     if (loginExitoso) {
@@ -37,7 +78,8 @@ class _LoginScreenState extends State<LoginScreen> {
         _irAMenuPrincipal(context);
       }
     } else {
-      _mostrarError('RUT no encontrado');
+      //Si no está registrado, lanzamos la invitación a registrarse
+      _mostrarDialogoUsuarioNoRegistrado(rut);
     }
   }
 

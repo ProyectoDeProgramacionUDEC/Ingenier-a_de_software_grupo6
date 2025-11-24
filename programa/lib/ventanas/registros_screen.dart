@@ -22,11 +22,44 @@ class _RegistroScreenState extends State<RegistroScreen> {
   final _claveMaestraController = TextEditingController(); 
 
   bool _esAdmin = false;
+  //Clave para registrar nuevos admins
   static const String CLAVE_MAESTRA_SISTEMA = "UDEC2025"; 
+
+  void _mostrarDialogoUsuarioExistente() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          icon: const Icon(Icons.info_outline, color: AppColors.secondary, size: 40),
+          title: const Text("Usuario ya registrado", style: TextStyle(fontWeight: FontWeight.bold)),
+          content: Text(
+            "El RUT ${_rutController.text} ya se encuentra registrado.\n¿Deseas iniciar sesión?",
+            textAlign: TextAlign.center,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Corregir RUT"),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primay,
+                foregroundColor: AppColors.fuente,
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(); 
+                Navigator.of(context).pop(); 
+              },
+              child: const Text("Ir al Login"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   void _registrar() {
     if (_formKey.currentState!.validate()) {
-      // Lógica de Admin
       if (_esAdmin) {
         if (_claveMaestraController.text != CLAVE_MAESTRA_SISTEMA) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -35,12 +68,9 @@ class _RegistroScreenState extends State<RegistroScreen> {
           return;
         }
       }
-
       // Verificar existencia
       if (GestorUsuarios().existeUsuario(_rutController.text)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Este RUT ya está registrado.')),
-        );
+        _mostrarDialogoUsuarioExistente();
         return;
       }
 
@@ -69,7 +99,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
       appBar: AppBar(
         title: const Text("Crear Cuenta"),
         backgroundColor: AppColors.primay, 
-        foregroundColor: AppColors.fuente, // Texto e iconos blancos
+        foregroundColor: AppColors.fuente,
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -106,7 +136,6 @@ class _RegistroScreenState extends State<RegistroScreen> {
 
               // SECCIÓN DE ROL
               SwitchListTile(
-                // Usamos el color primario para el switch activo
                 activeColor: AppColors.primay,
                 title: const Text("¿Registrar como Administrador?"),
                 subtitle: const Text("Requiere clave institucional"),
@@ -141,7 +170,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
                         decoration: const InputDecoration(
                           labelText: 'Clave de Autorización UDEC',
                           prefixIcon: Icon(Icons.vpn_key, color: AppColors.primay),
-                          fillColor: Colors.white, // Para que resalte el input
+                          fillColor: Colors.white,
                           filled: true,
                         ),
                         obscureText: true,
@@ -166,14 +195,11 @@ class _RegistroScreenState extends State<RegistroScreen> {
 
               const SizedBox(height: 30),
               
-              // BOTÓN REFACTORIZADO CON TUS COLORES
               ElevatedButton(
                 onPressed: _registrar,
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
-                  // FONDO: Azul Udec
                   backgroundColor: AppColors.primay, 
-                  // TEXTO: Blanco (Tu nueva variable fuente)
                   foregroundColor: AppColors.fuente, 
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
