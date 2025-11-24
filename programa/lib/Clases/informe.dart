@@ -4,29 +4,20 @@ import 'package:pdf/pdf.dart' as pdf;
 import 'package:printing/printing.dart';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:pdf/src/pdf/page_format.dart' as pfn;
 
-
-// --- ¡ASEGÚRATE DE IMPORTAR TU CLASE 'Reporte' ---
 import 'package:programa/Clases/reporte.dart';
 
 class PantallaVistaPrevia extends StatelessWidget {
-  // --- EL WIDGET AHORA RECIBE EL REPORTE ---
   final Reporte reporte;
   const PantallaVistaPrevia({super.key, required this.reporte});
 
-  // --- LA FUNCIÓN AHORA ES 'async' Y RECIBE EL REPORTE ---
   Future<Uint8List> generarPdf(Reporte reporte) async {
-    // Renombrado para evitar choque con el alias 'pdf'
     final pdfDoc = pw.Document();
 
-    // --- NUEVO: Cargar el logo de la UdeC desde los assets ---
     final logoImage = pw.MemoryImage(
       (await rootBundle.load('assets/images/LogoUdec.png')).buffer.asUint8List(),
     );
 
-    // Cargamos fuentes (asegúrate de tener el paquete pdf_google_fonts en pubspec)
     final font = await PdfGoogleFonts.tinosRegular();
     final boldFont = await PdfGoogleFonts.tinosBold();
 
@@ -35,7 +26,6 @@ class PantallaVistaPrevia extends StatelessWidget {
       bold: boldFont,
     );
 
-    // Cargamos la imagen del reporte
     pw.ImageProvider? imageProvider;
     try {
       if (reporte.imagenUrl != null && reporte.imagenUrl.isNotEmpty) {
@@ -45,14 +35,11 @@ class PantallaVistaPrevia extends StatelessWidget {
       print('Error al cargar la imagen del PDF: $e');
       imageProvider = null;
     }
-
-    // --- Usamos MultiPage para el layout formal ---
     pdfDoc.addPage(
       pw.MultiPage(
         pageFormat: pdf.PdfPageFormat.a4,
         theme: pdfTheme,
 
-        // --- Encabezado de Página (quitamos const donde usamos pdf.*) ---
         header: (pw.Context context) {
           return pw.Container(
             alignment: pw.Alignment.centerLeft,
@@ -80,7 +67,6 @@ class PantallaVistaPrevia extends StatelessWidget {
           );
         },
 
-        // --- Pie de Página ---
         footer: (pw.Context context) {
           return pw.Container(
             alignment: pw.Alignment.centerRight,
@@ -94,7 +80,6 @@ class PantallaVistaPrevia extends StatelessWidget {
 
         build: (pw.Context context) {
           return [
-            // Título principal
             pw.Header(
               level: 0,
               child: pw.Text(
@@ -104,7 +89,6 @@ class PantallaVistaPrevia extends StatelessWidget {
             ),
             pw.SizedBox(height: 1 * pdf.PdfPageFormat.cm),
 
-            // Datos principales
             pw.Row(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
@@ -136,7 +120,6 @@ class PantallaVistaPrevia extends StatelessWidget {
             ),
             pw.SizedBox(height: 1 * pdf.PdfPageFormat.cm),
 
-            // Descripción
             _buildSectionHeader('Descripción dada por el usuario'),
             pw.Text(
               (reporte.descripcion?.isEmpty ?? true) ? 'No se proporcionó descripción.' : reporte.descripcion ?? '',
@@ -144,7 +127,6 @@ class PantallaVistaPrevia extends StatelessWidget {
             ),
             pw.SizedBox(height: 1 * pdf.PdfPageFormat.cm),
 
-            // Contacto
             _buildSectionHeader('Información de Contacto'),
             _buildDetalleRow('Reportado por:', reporte.nombreUsuario),
             _buildDetalleRow('Contacto:', reporte.contactoUsuario),
@@ -169,7 +151,6 @@ class PantallaVistaPrevia extends StatelessWidget {
   }
 }
 
-// Títulos de sección (quitamos const y usamos pdf.*)
 pw.Widget _buildSectionHeader(String title) {
   return pw.Container(
     margin: pw.EdgeInsets.only(bottom: 0.5 * pdf.PdfPageFormat.mm),
@@ -182,7 +163,7 @@ pw.Widget _buildSectionHeader(String title) {
       style: pw.TextStyle(
         fontSize: 16,
         fontWeight: pw.FontWeight.bold,
-        color: pdf.PdfColors.blueGrey, // usa un color existente
+        color: pdf.PdfColors.blueGrey,
       ),
     ),
   );

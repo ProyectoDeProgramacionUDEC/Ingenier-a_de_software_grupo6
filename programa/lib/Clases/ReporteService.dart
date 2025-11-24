@@ -15,7 +15,7 @@ class ReporteService extends ChangeNotifier {
   }
   
   Future<void> respaldarEnHive() async {
-    //Próximam3ente: Implementar respaldo en Hive
+    //Próximamente: Implementar respaldo en Hive
     print('Respaldando ${_reportes.length} reportes en Hive...');
   }
 }
