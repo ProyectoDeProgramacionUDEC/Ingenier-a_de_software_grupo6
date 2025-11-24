@@ -4,12 +4,20 @@ import 'package:programa/Styles/app_colors.dart';
 import 'package:programa/ventanas/Administrador.dart';
 import 'package:programa/ventanas/Tipo_de_usuario.dart';
 import 'package:programa/ventanas/objetos_perdidos_screen.dart';
+import 'package:programa/services/user_service.dart';
+import 'package:provider/provider.dart';
 
 class VentanaInicioDeUsuario extends StatelessWidget {
   const VentanaInicioDeUsuario({super.key});
 
   @override
   Widget build(BuildContext context) {
+
+    final userService = Provider.of<UserService>(context);
+    final usuario = userService.usuarioLogueado;
+    
+    // Verificamos si es admin (si usuario es null, asume false)
+    final bool esAdmin = usuario?.esAdmin ?? false;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -22,11 +30,13 @@ class VentanaInicioDeUsuario extends StatelessWidget {
           navegar: (context) => const PerdidosScreen(),
           texto: "VER OBJETOS",
         ),
-        BotonVentanaInicio(
-          navegar: (context) => const VentanaAdministrador(),
-          texto: "ADMINISTRADOR",
-        ),
-      ],
+        if (esAdmin) ...[
+          BotonVentanaInicio(
+            navegar: (context) => const VentanaAdministrador(),
+            texto: "ADMINISTRADOR",
+          ),
+        ],
+      ]
     );
   }
 }

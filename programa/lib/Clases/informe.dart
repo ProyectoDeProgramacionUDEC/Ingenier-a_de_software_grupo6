@@ -6,27 +6,22 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pdf/src/pdf/page_format.dart' as pfn;
-
-
-// --- ¡ASEGÚRATE DE IMPORTAR TU CLASE 'Reporte' ---
 import 'package:programa/Clases/reporte.dart';
 
 class PantallaVistaPrevia extends StatelessWidget {
-  // --- EL WIDGET AHORA RECIBE EL REPORTE ---
   final Reporte reporte;
   const PantallaVistaPrevia({super.key, required this.reporte});
 
-  // --- LA FUNCIÓN AHORA ES 'async' Y RECIBE EL REPORTE ---
+  // La función es asincrónica y ahora recibe el reporte.
   Future<Uint8List> generarPdf(Reporte reporte) async {
-    // Renombrado para evitar choque con el alias 'pdf'
     final pdfDoc = pw.Document();
 
-    // --- NUEVO: Cargar el logo de la UdeC desde los assets ---
+    //Carga el logo de la UdeC desde los assets ---
     final logoImage = pw.MemoryImage(
       (await rootBundle.load('assets/images/LogoUdec.png')).buffer.asUint8List(),
     );
 
-    // Cargamos fuentes (asegúrate de tener el paquete pdf_google_fonts en pubspec)
+    // Cargamos fuentes
     final font = await PdfGoogleFonts.tinosRegular();
     final boldFont = await PdfGoogleFonts.tinosBold();
 
@@ -46,13 +41,13 @@ class PantallaVistaPrevia extends StatelessWidget {
       imageProvider = null;
     }
 
-    // --- Usamos MultiPage para el layout formal ---
+    // Usamos MultiPage para el layout formal
     pdfDoc.addPage(
       pw.MultiPage(
         pageFormat: pdf.PdfPageFormat.a4,
         theme: pdfTheme,
 
-        // --- Encabezado de Página (quitamos const donde usamos pdf.*) ---
+        // Encabezado de Página
         header: (pw.Context context) {
           return pw.Container(
             alignment: pw.Alignment.centerLeft,
@@ -80,7 +75,7 @@ class PantallaVistaPrevia extends StatelessWidget {
           );
         },
 
-        // --- Pie de Página ---
+        // Pie de Página
         footer: (pw.Context context) {
           return pw.Container(
             alignment: pw.Alignment.centerRight,
@@ -169,7 +164,6 @@ class PantallaVistaPrevia extends StatelessWidget {
   }
 }
 
-// Títulos de sección (quitamos const y usamos pdf.*)
 pw.Widget _buildSectionHeader(String title) {
   return pw.Container(
     margin: pw.EdgeInsets.only(bottom: 0.5 * pdf.PdfPageFormat.mm),

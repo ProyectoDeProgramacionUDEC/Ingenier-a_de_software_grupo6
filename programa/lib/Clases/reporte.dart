@@ -8,8 +8,9 @@ class Reporte {
   final String contactoUsuario;
   final bool PersonalUdec;
   final bool tipoObjeto;
+  final String rutUsuario;
 
-  Reporte({
+  Reporte ({
     required this.nombre,
     required this.fecha,
     required this.imagenUrl,
@@ -19,6 +20,7 @@ class Reporte {
     this.contactoUsuario = '',
     required this.PersonalUdec,
     required this.tipoObjeto,
+    required this.rutUsuario
   });
 
   Reporte copyWith({
@@ -31,6 +33,7 @@ class Reporte {
     String? contactoUsuario,
     bool? PersonalUdec,
     bool? tipoObjeto,
+    String? rutUsuario, 
   }) {
     return Reporte(
       nombre: nombre ?? this.nombre,
@@ -42,6 +45,7 @@ class Reporte {
       contactoUsuario: contactoUsuario ?? this.contactoUsuario,
       PersonalUdec: PersonalUdec ?? this.PersonalUdec,
       tipoObjeto: tipoObjeto ?? this.tipoObjeto,
+      rutUsuario: rutUsuario ?? this.rutUsuario
     );
   }
 }

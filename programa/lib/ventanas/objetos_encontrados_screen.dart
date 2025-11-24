@@ -1,37 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:programa/Clases/reporte.dart';
 import 'package:programa/Clases/reporte_list.dart';
-import 'package:programa/Styles/appBar.dart';
 import 'package:provider/provider.dart';
 import 'package:programa/Clases/ReporteService.dart';
 import 'package:programa/services/user_service.dart';
 
-class PerdidosScreen extends StatelessWidget {
-  const PerdidosScreen({super.key});
+class EncontradosScreen extends StatelessWidget {
+  const EncontradosScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    
-    // Obtenemos el usuario
+    //Identificamos al usuario
     final usuarioLogueado = Provider.of<UserService>(context).usuarioLogueado;
 
     return Consumer<ReporteService>(
       builder: (context, reporteService, child) {
         
-        // Admin: Recibe todo.
-        // Usuario: Recibe solo lo suyo.
+        // Pedimos la lista FILTRADA por seguridad
+        // Esto devuelve:
+        // - Si es Admin: TODOS los reportes
+        // - Si es Usuario: SOLO sus reportes
         final listaSegura = reporteService.obtenerReportesVisibles(usuarioLogueado);
 
-        final perdidos = listaSegura.where((r) => !r.encontrado).toList();
+        // Filtramos por la lógica de esta pantalla ("Encontrados")
+        final encontrados = listaSegura
+            .where((r) => r.encontrado == true) // Solo los marcados como encontrados
+            .toList();
 
         return Scaffold(
-          appBar: UdecAppBarRightLogo(title: "OBJETOS Perdidos"),
-          
-          // Validación por si la lista está vacía
-          body: perdidos.isEmpty
-            ? const Center(child: Text("No tienes objetos perdidos activos"))
+          appBar: AppBar(title: const Text('Objetos Encontrados')),
+
+          // Visualización (Si la lista está vacía, mostramos un mensaje)
+          body: encontrados.isEmpty 
+            ? const Center(child: Text("No hay reportes encontrados"))
             : ListaReportes(
-                reportes: perdidos,
+                reportes: encontrados,
                 onReporteChanged: (reporte, nuevoEstado) {
                   reporteService.actualizarEstadoReporte(reporte, nuevoEstado);
                 },

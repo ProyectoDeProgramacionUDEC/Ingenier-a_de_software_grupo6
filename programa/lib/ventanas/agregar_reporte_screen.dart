@@ -24,6 +24,7 @@ class _AgregarReporteScreenState extends State<AgregarReporteScreen> {
   final _nombreUsuarioController = TextEditingController();
   final _contactoUsuarioController = TextEditingController();
   final _imagenUrlController = TextEditingController();
+  
 
   DateTime _fechaSeleccionada = DateTime.now();
   bool _encontrado = false;
@@ -73,6 +74,8 @@ class _AgregarReporteScreenState extends State<AgregarReporteScreen> {
   void _agregarReporte() {
     if (_formKey.currentState!.validate()) {
       final userService = Provider.of<UserService>(context, listen: false);
+      final usuarioLogueado = userService.usuarioLogueado;
+      final String rutFirma = usuarioLogueado != null ? usuarioLogueado.rut : 'Anónimo';
 
       final nuevoReporte = Reporte(
         nombre: _nombreController.text,
@@ -86,6 +89,7 @@ class _AgregarReporteScreenState extends State<AgregarReporteScreen> {
         contactoUsuario: _contactoUsuarioController.text,
         PersonalUdec: true,
         tipoObjeto: true,
+        rutUsuario: rutFirma,
       );
 
       Provider.of<ReporteService>(

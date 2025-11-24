@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:programa/Clases/usuario.dart';
+import 'package:programa/Clases/GestorUsuarios.dart';
 
 class UserService extends ChangeNotifier {
   Usuario? _usuarioLogueado;
@@ -10,11 +11,11 @@ class UserService extends ChangeNotifier {
   bool get requierePasswordAdmin => _requierePasswordAdmin;
   
   bool login(String rut) {
-    final usuario = UsuariosIniciales.buscarPorRUT(rut);
+    final usuario = GestorUsuarios().buscarPorRUT(rut);
+
     if (usuario != null) {
       _usuarioLogueado = usuario;
       
-      // Si es admin, requiere contraseña adicional
       if (usuario.esAdmin) {
         _requierePasswordAdmin = true;
       } else {
@@ -30,7 +31,7 @@ class UserService extends ChangeNotifier {
   bool verificarPasswordAdmin(String password) {
     if (_usuarioLogueado?.esAdmin == true && 
         _usuarioLogueado?.passwordAdmin == password) {
-      _requierePasswordAdmin = false;
+      _requierePasswordAdmin = false; // Contraseña correcta, quitamos el bloqueo
       notifyListeners();
       return true;
     }
