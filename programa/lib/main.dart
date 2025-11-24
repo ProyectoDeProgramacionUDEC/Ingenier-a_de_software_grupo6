@@ -38,12 +38,12 @@ class MenuPrincipal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: Barra_arriba(),
+      appBar: Barra_arriba(context),
       body: const VentanaInicioDeUsuario(),
     );
   }
 
-  AppBar Barra_arriba() {
+  AppBar Barra_arriba(BuildContext context) {
     return AppBar(
       backgroundColor: AppColors.primay,
       foregroundColor: AppColors.secondary,
