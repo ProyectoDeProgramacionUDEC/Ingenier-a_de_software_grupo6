@@ -1,13 +1,28 @@
-class Reporte {
+import 'package:hive/hive.dart';
+
+part 'reporte.g.dart';
+
+@HiveType(typeId: 1) // ID único para Reporte 
+class Reporte extends HiveObject {
+  @HiveField(0)
   final String nombre;
+  @HiveField(1)
   final String descripcion;
+  @HiveField(2)
   final DateTime fecha;
+  @HiveField(3)
   final String imagenUrl;
+  @HiveField(4)
   final bool encontrado;
+  @HiveField(5)
   final String nombreUsuario;
+  @HiveField(6)
   final String contactoUsuario;
+  @HiveField(7)
   final bool PersonalUdec;
+  @HiveField(8)
   final bool tipoObjeto;
+  @HiveField(9)
   final String rutUsuario;
 
   Reporte ({

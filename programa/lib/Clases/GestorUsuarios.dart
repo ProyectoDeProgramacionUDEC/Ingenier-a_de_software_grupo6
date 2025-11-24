@@ -1,81 +1,97 @@
+import 'package:hive/hive.dart';
 import 'package:programa/Clases/usuario.dart';
 
 class GestorUsuarios {
-  // 1. Patrón Singleton: la lista será única en toda la app
+  // 1. Patrón Singleton
   static final GestorUsuarios _instancia = GestorUsuarios._internal();
   
   factory GestorUsuarios() {
     return _instancia;
   }
 
+  // Referencia a la base de datos
+  late Box<Usuario> _caja;
+
   GestorUsuarios._internal() {
-    // Aquí cargamos los datos iniciales solo una vez
-    _usuarios.addAll(_usuariosIniciales);
+    // Obtenemos la caja que ya abrimos en el main.dart
+    _caja = Hive.box<Usuario>('box_usuarios');
+
+    // Solo si la caja está vacía registramos los usuarios por default
+    if (_caja.isEmpty) {
+      _cargarUsuariosIniciales();
+    }
   }
 
-  // 2. La lista es privada (_usuarios) para protegerla
-  final List<Usuario> _usuarios = [];
+  // Obtener todos: Convertimos los valores de Hive a una lista
+  List<Usuario> obtenerTodos() => _caja.values.toList();
 
-  // Datos semilla (opcional, solo para pruebas)
-  final List<Usuario> _usuariosIniciales = [
-     Usuario(
-      rut: '218012493',
-      nombre: 'Benjamin Diaz Ulloa',
-      numeroContacto: '+56999999999',
-      correoContacto: 'benja@udec.cl',
-      esAdmin: true,
-      passwordAdmin: 'admin123',
-    ),
-    Usuario(
-      rut: '219066457',
-      nombre: 'Ariel Fernández Fuentealba',
-      numeroContacto: '+56999999999',
-      correoContacto: 'ariel@udec.cl',
-      esAdmin: false,
-      passwordAdmin: null,
-    ),
-    Usuario(
-      rut: '215347956',
-      nombre: 'Kurt Koserak Ortiz',
-      numeroContacto: '+56999999999',
-      correoContacto: 'kurt@udec.cl',
-      esAdmin: false,
-      passwordAdmin: null,
-    ),
-    // ... otros usuarios iniciales
-  ];
-
-  // --- MÉTODOS PÚBLICOS
-
-  // Obtener todos (devuelve una copia para seguridad)
-  List<Usuario> obtenerTodos() => List.unmodifiable(_usuarios);
-
-  // Agregar nuevo usuario dinámicamente
+  // Agregar nuevo usuario (Persistente)
   bool agregarUsuario(Usuario nuevoUsuario) {
     if (existeUsuario(nuevoUsuario.rut)) {
       print("Error: El usuario ya existe.");
       return false; 
     }
-    _usuarios.add(nuevoUsuario);
-    print("Usuario ${nuevoUsuario.nombre} agregado correctamente.");
+    
+    // Usamos el RUT como 'key' (llave). 
+    // Esto hace que buscarlo después sea instantáneo.
+    _caja.put(nuevoUsuario.rut, nuevoUsuario);
+    
+    print("Usuario ${nuevoUsuario.nombre} guardado en disco correctamente.");
     return true;
   }
 
   Usuario? buscarPorRUT(String rut) {
-    try {
-      return _usuarios.firstWhere((u) => u.rut == rut);
-    } catch (e) {
-      return null;
-    }
+    // Hive busca directo por llave, sin necesidad de recorrer una lista
+    return _caja.get(rut);
   }
 
   bool existeUsuario(String rut) {
-    return _usuarios.any((u) => u.rut == rut);
+    // Verificamos si la llave existe en la caja
+    return _caja.containsKey(rut);
   }
 
   bool eliminarUsuario(String rut) {
-    int inicial = _usuarios.length;
-    _usuarios.removeWhere((u) => u.rut == rut);
-    return _usuarios.length < inicial;
+    if (existeUsuario(rut)) {
+      _caja.delete(rut); // Borramos del disco
+      return true;
+    }
+    return false;
+  }
+
+  // Esta función es privada y solo se llama si la caja está vacía
+  void _cargarUsuariosIniciales() {
+    print("Inicializando base de datos con usuarios por defecto...");
+    
+    final listaInicial = [
+      Usuario(
+        rut: '218012493',
+        nombre: 'Benjamin Diaz Ulloa',
+        numeroContacto: '+56999999999',
+        correoContacto: 'benja@udec.cl',
+        esAdmin: true,
+        passwordAdmin: 'admin123',
+      ),
+      Usuario(
+        rut: '219066457',
+        nombre: 'Ariel Fernández Fuentealba',
+        numeroContacto: '+56999999999',
+        correoContacto: 'ariel@udec.cl',
+        esAdmin: false,
+        passwordAdmin: null,
+      ),
+      Usuario(
+        rut: '215347956',
+        nombre: 'Kurt Koserak Ortiz',
+        numeroContacto: '+56999999999',
+        correoContacto: 'kurt@udec.cl',
+        esAdmin: false,
+        passwordAdmin: null,
+      ),
+    ];
+
+    // Guardamos cada uno usando su RUT como llave
+    for (var usuario in listaInicial) {
+      _caja.put(usuario.rut, usuario);
+    }
   }
 }
