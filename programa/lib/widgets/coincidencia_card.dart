@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:programa/coincidencia.dart';
 import 'package:programa/Clases/reporte.dart';
+import 'package:programa/ventanas/detalle_reporte_screen.dart';
 
 class CoincidenciaCard extends StatelessWidget {
   final Coincidencia coincidencia;
@@ -90,18 +91,18 @@ class CoincidenciaCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             const Divider(),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
 
-            // Objeto Perdido
             _buildReporteInfo(
+              context,
               'Objeto Perdido',
               coincidencia.perdido,
               Colors.red.shade50,
             ),
             const SizedBox(height: 12),
 
-            // Objeto Encontrado
             _buildReporteInfo(
+              context,
               'Objeto Encontrado',
               coincidencia.encontrado,
               Colors.green.shade50,
@@ -113,17 +114,28 @@ class CoincidenciaCard extends StatelessWidget {
   }
 
   Widget _buildReporteInfo(
+    BuildContext context,
     String titulo,
     Reporte reporte,
     Color backgroundColor,
   ) {
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetalleReporteScreen(reporte: reporte),
+          ),
+        );
+      },
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
@@ -180,6 +192,7 @@ class CoincidenciaCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }
