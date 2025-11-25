@@ -1,6 +1,7 @@
 import 'package:string_similarity/string_similarity.dart';
 import 'package:programa/Clases/reporte.dart';
 import 'package:programa/coincidencia.dart';
+import 'dart:math';
 
 class SimilitudService {
   static List<Coincidencia> encontrarCoincidencias(
@@ -13,17 +14,26 @@ class SimilitudService {
 
     for (var perdido in perdidos) {
       for (var encontrado in encontrados) {
-        final similitud = _calcularSimilitud(
+        final similitudTitulo = _calcularSimilitud(
           perdido.nombre,
           encontrado.nombre,
         );
+        
+        final similitudDescripcion = _calcularSimilitud(
+          perdido.descripcion,
+          encontrado.descripcion,
+        );
 
-        if (similitud >= similitudMinima) {
+        if (similitudTitulo >= 0.7 || similitudDescripcion >= 0.6) {
+          final similitudMaxima = max(similitudTitulo, similitudDescripcion);
+          
           coincidencias.add(
             Coincidencia(
               perdido: perdido,
               encontrado: encontrado,
-              similitud: similitud,
+              similitud: similitudMaxima,
+              similitudTitulo: similitudTitulo,
+              similitudDescripcion: similitudDescripcion,
             ),
           );
         }

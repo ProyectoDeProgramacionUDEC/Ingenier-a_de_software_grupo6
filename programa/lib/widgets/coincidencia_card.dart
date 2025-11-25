@@ -14,7 +14,8 @@ class CoincidenciaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final porcentaje = (coincidencia.similitud * 100).toStringAsFixed(0);
+    final porcentajeTitulo = (coincidencia.similitudTitulo * 100).toStringAsFixed(0);
+    final porcentajeDescripcion = (coincidencia.similitudDescripcion * 100).toStringAsFixed(0);
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -40,18 +41,38 @@ class CoincidenciaCard extends StatelessWidget {
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
+                        horizontal: 10,
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.orange.shade100,
+                        color: Colors.blue.shade100,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        '$porcentaje% similar',
+                        'T: $porcentajeTitulo%',
                         style: TextStyle(
-                          color: Colors.orange.shade900,
+                          color: Colors.blue.shade900,
                           fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade100,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        'D: $porcentajeDescripcion%',
+                        style: TextStyle(
+                          color: Colors.green.shade900,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
                         ),
                       ),
                     ),
