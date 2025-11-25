@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:programa/Clases/reporte_list.dart';
 import 'package:programa/ventanas/agregar_reporte_screen.dart';
 import 'package:programa/Clases/ReporteService.dart';
 import 'package:programa/ventanas/avisos_screen.dart';
 import 'package:programa/services/user_service.dart';
-import 'package:provider/provider.dart';
 
 class ReportesTabsScreen extends StatelessWidget {
   const ReportesTabsScreen({super.key});
@@ -12,20 +12,21 @@ class ReportesTabsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     
-    // Obtenemos el usuario que está en sesión
+    // Obtenemos el usuario y verificamos su rol
     final usuarioLogueado = Provider.of<UserService>(context).usuarioLogueado;
+    final bool esAdmin = usuarioLogueado?.esAdmin ?? false;
 
     return Consumer<ReporteService>(
       builder: (context, reporteService, child) {
         
-        // Obtenemos una lista segura de reportes
+        // Obtenemos lista segura
         final listaSegura = reporteService.obtenerReportesVisibles(usuarioLogueado);
 
         print(
-          '¡PANTALLA DE TABS REDIBUJADA! Mostrando ${listaSegura.length} reportes para el usuario ${usuarioLogueado?.nombre ?? "Anon"}.',
+          '¡PANTALLA DE TABS REDIBUJADA! Mostrando ${listaSegura.length} reportes.',
         ); 
 
-        // Procesamos las listas
+        // Procesamos las listas (Filtrar y Ordenar por fecha)
         final perdidos = listaSegura
             .where((r) => !r.encontrado)
             .toList()
@@ -52,33 +53,23 @@ class ReportesTabsScreen extends StatelessWidget {
             ),
             body: TabBarView(
               children: [
-                // TAB 1: PERDIDOS (Filtrados)
-                // Si no hay nada, mostramos mensaje
+                // TAB 1: PERDIDOS
                 perdidos.isEmpty 
                   ? const Center(child: Text("No tienes reportes de objetos perdidos."))
                   : ListaReportes(
                       reportes: perdidos,
-                      onReporteChanged: (reporte, nuevoEstado) {
-                        reporteService.actualizarEstadoReporte(
-                          reporte,
-                          nuevoEstado,
-                        );
-                      },
+                      esAdmin: esAdmin,
                     ),
 
-                // TAB 2: ENCONTRADOS (Filtrados)
+                // TAB 2: ENCONTRADOS
                 encontrados.isEmpty 
                   ? const Center(child: Text("No has encontrado ningún objeto aún."))
                   : ListaReportes(
                       reportes: encontrados,
-                      onReporteChanged: (reporte, nuevoEstado) {
-                        reporteService.actualizarEstadoReporte(
-                          reporte,
-                          nuevoEstado,
-                        );
-                      },
+                      esAdmin: esAdmin
                     ),
 
+                // TAB 3: AVISOS (Inteligencia de coincidencias)
                 AvisosScreen(
                   todosLosReportes: listaSegura, 
                   similitudMinima: 0.6,
@@ -90,6 +81,7 @@ class ReportesTabsScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
+                    // Al agregar, el formulario tomará el RUT del usuarioLogueado
                     builder: (context) => const AgregarReporteScreen(
                       personalUdec: true,
                       esEncontrado: false,

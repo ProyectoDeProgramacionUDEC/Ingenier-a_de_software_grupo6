@@ -5,68 +5,68 @@ import 'package:programa/Clases/usuario.dart';
 
 class ReporteService extends ChangeNotifier {
   
+  // Base de datos
   final Box<Reporte> _cajaReportes = Hive.box<Reporte>('box_reportes');
-
-  // Propiedad auxiliar para obtener todos los datos como lista (útil para filtrar)
   List<Reporte> get _todosLosReportes => _cajaReportes.values.toList();
 
+  // Lógica de filtrado
   List<Reporte> obtenerReportesVisibles(Usuario? usuarioLogueado) {
-    
     if (usuarioLogueado == null) return [];
 
-    // Si es ADMIN, le damos acceso a TODO lo que hay en la caja
+    // Si es admin, lo ve todo
     if (usuarioLogueado.esAdmin) {
       return _todosLosReportes;
     }
 
-    // Si es USUARIO COMÚN, filtramos lo que hay en la caja por su RUT
+    // Si es usuario común, ve solo lo suyo
     return _todosLosReportes.where((reporte) {
+
       return reporte.rutUsuario == usuarioLogueado.rut; 
     }).toList();
   }
 
-  // Persistencia
+  // Agregar
   void agregarNuevoReporte(Reporte reporte) {
     _cajaReportes.add(reporte);
-    
     print('¡REPORTE GUARDADO EN HIVE! Total en BD: ${_cajaReportes.length}');
     notifyListeners();
   }
+
+  // Actualizar
   void actualizarEstadoReporte(Reporte reporteOriginal, bool nuevoEstado) {
-    
-
     final reporteActualizado = reporteOriginal.copyWith(encontrado: nuevoEstado);
+    _reemplazarEnHive(reporteOriginal, reporteActualizado);
+  }
 
-    // Encontrar la llave (Key) en Hive.
-    dynamic keyEncontrada;
-    
-    // Buscamos qué llave tiene este objeto específico en la caja
-    try {
-      keyEncontrada = _cajaReportes.keys.firstWhere(
-        (k) => _cajaReportes.get(k) == reporteOriginal
-      );
-    } catch (e) {
-      keyEncontrada = null;
-    }
+  // Modificar reporte
+  void actualizarReporte(Reporte reporteAntiguo, Reporte reporteNuevo) {
+    print("Actualizando reporte completo...");
+    _reemplazarEnHive(reporteAntiguo, reporteNuevo);
+  }
 
-    if (keyEncontrada != null) {
-      // Sobrescribimos en disco usando la llave
-      _cajaReportes.put(keyEncontrada, reporteActualizado);
+  // Método: Busca la llave del viejo y pone el nuevo en su lugar
+  void _reemplazarEnHive(Reporte viejo, Reporte nuevo) {
+    final key = _cajaReportes.keys.firstWhere(
+      (k) => _cajaReportes.get(k) == viejo, 
+      orElse: () => null
+    );
 
-      print('Estado actualizado en Hive. Notificando...');
+    if (key != null) {
+      _cajaReportes.put(key, nuevo); // Sobrescribe en el disco
+      print("Objeto actualizado exitosamente en Hive.");
       notifyListeners();
     } else {
-      print('Error: No se pudo encontrar el reporte en Hive para actualizarlo.');
+      print("Error: No se encontró el reporte original para actualizar.");
     }
   }
 
-  //Método para borrar (útil para el admin)
   void borrarReporte(Reporte reporte) {
      final key = _cajaReportes.keys.firstWhere(
         (k) => _cajaReportes.get(k) == reporte, orElse: () => null);
      
      if (key != null) {
        _cajaReportes.delete(key);
+       print("Reporte eliminado de Hive.");
        notifyListeners();
      }
   }

@@ -4,12 +4,12 @@ import 'package:programa/componenetes/reporte_card.dart';
 
 class ListaReportes extends StatelessWidget {
   final List<Reporte> reportes;
-  final Function(Reporte, bool) onReporteChanged;
+  final bool esAdmin;
 
   const ListaReportes({
     super.key,
     required this.reportes,
-    required this.onReporteChanged,
+    this.esAdmin = false,
   });
 
   @override
@@ -19,9 +19,6 @@ class ListaReportes extends StatelessWidget {
       itemBuilder: (context, index) {
         return ReporteCard(
           reporte: reportes[index],
-          onEncontradoChanged: (nuevoValor) {
-            onReporteChanged(reportes[index], nuevoValor);
-          },
         );
       },
     );

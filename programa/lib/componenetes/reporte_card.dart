@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:programa/Clases/reporte.dart';
-// ¡Importa la nueva pantalla que acabamos de crear!
+import 'package:programa/Clases/ReporteService.dart';
+import 'package:programa/services/user_service.dart';
 import 'package:programa/ventanas/detalle_reporte_screen.dart';
+import 'package:programa/ventanas/agregar_reporte_screen.dart';
 
-// 1. Convertimos a StatefulWidget
 class ReporteCard extends StatefulWidget {
   final Reporte reporte;
-  final ValueChanged<bool> onEncontradoChanged;
+
   const ReporteCard({
     super.key,
     required this.reporte,
-    required this.onEncontradoChanged,
   });
 
   @override
@@ -18,67 +19,166 @@ class ReporteCard extends StatefulWidget {
 }
 
 class _ReporteCardState extends State<ReporteCard> {
-  // 2. El "seguro" anti-spam
   bool _isNavigating = false;
+
   @override
   Widget build(BuildContext context) {
+    final reporteService = Provider.of<ReporteService>(context, listen: false);
+    
+    // Obtenemos el usuario actual
+    final userService = Provider.of<UserService>(context, listen: false);
+    final usuario = userService.usuarioLogueado;
+
+    // Vemos los permisos del usuario
+    final esDueno = usuario != null && usuario.rut == widget.reporte.rutUsuario;
+    // ¿Es Admin?
+    final esAdmin = usuario?.esAdmin ?? false;
+
+    final tienePermisos = esDueno || esAdmin;
+
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
-        leading: Image.network(
-          widget.reporte.imagenUrl, // <-- 3. Usamos 'widget.reporte'
-          width: 60,
-          height: 60,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) {
-            return Container(
-              width: 60,
-              height: 60,
-              color: Colors.grey[200],
-              child: Icon(Icons.image, color: Colors.grey[400]),
-            );
-          },
+        leading: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.network(
+            widget.reporte.imagenUrl,
+            width: 60,
+            height: 60,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                width: 60,
+                height: 60,
+                color: Colors.grey[200],
+                child: Icon(Icons.image, color: Colors.grey[400]),
+              );
+            },
+          ),
         ),
-        title: Text(widget.reporte.nombre), // <-- 3. Usamos 'widget.reporte'
+        
+        title: Text(widget.reporte.nombre, style: const TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Text(
           "Fecha: ${widget.reporte.fecha.day}/${widget.reporte.fecha.month}/${widget.reporte.fecha.year}",
         ),
 
-        // --- 4. LA SOLUCIÓN AL CRASH Y AL "NO CLICK" ---
         onTap: () async {
-          if (_isNavigating) return; // Si ya estoy navegando, ignora el click.
+          if (_isNavigating) return;
+          setState(() => _isNavigating = true);
 
-          setState(() {
-            _isNavigating = true;
-          });
-
-          // Navega a la nueva pantalla de detalles
           await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  DetalleReporteScreen(reporte: widget.reporte),
+              builder: (context) => DetalleReporteScreen(reporte: widget.reporte),
             ),
           );
 
-          // Desactiva el seguro CUANDO EL USUARIO REGRESE
           if (context.mounted) {
-            setState(() {
-              _isNavigating = false;
-            });
+            setState(() => _isNavigating = false);
           }
         },
-        trailing: IconButton(
-          icon: Icon(
-            widget.reporte.encontrado
-                ? Icons.check_circle
-                : Icons.check_circle_outline,
-            color: widget.reporte.encontrado ? Colors.green : Colors.grey,
-          ),
-          onPressed: () {
-            widget.onEncontradoChanged(!widget.reporte.encontrado);
-          },
+
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // El botón de check lo pueden ver todos los dueños para marcar encontrado
+            IconButton(
+              icon: Icon(
+                widget.reporte.encontrado
+                    ? Icons.check_circle
+                    : Icons.check_circle_outline,
+                color: widget.reporte.encontrado ? Colors.green : Colors.grey,
+              ),
+              onPressed: () {
+                // Solo permitimos cambiar estado si tiene permisos
+                if (tienePermisos) {
+                   reporteService.actualizarEstadoReporte(
+                    widget.reporte, 
+                    !widget.reporte.encontrado
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("No tienes permiso para modificar esto"))
+                  );
+                }
+              },
+            ),
+
+            // Menú de editar/eliminar reportes
+            if (tienePermisos)
+              PopupMenuButton<String>(
+                onSelected: (value) async {
+                  
+                  if (value == "edit") {
+                    if (_isNavigating) return;
+                    setState(() => _isNavigating = true);
+
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AgregarReporteScreen(
+                          esEncontrado: widget.reporte.encontrado,
+                          personalUdec: widget.reporte.PersonalUdec,
+                          reporteParaEditar: widget.reporte,
+                          esAdministrador: esAdmin,
+                        ),
+                      ),
+                    );
+
+                    if (context.mounted) {
+                      setState(() => _isNavigating = false);
+                    }
+                  } 
+                  
+                  else if (value == "delete") {
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text("Eliminar Reporte"),
+                        content: const Text("¿Estás seguro? Esta acción no se puede deshacer."),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: const Text("Cancelar"),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            child: const Text("Eliminar", style: TextStyle(color: Colors.red)),
+                          ),
+                        ],
+                      ),
+                    );
+
+                    if (confirm == true) {
+                      reporteService.borrarReporte(widget.reporte);
+                    }
+                  }
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: "edit",
+                    child: Row(
+                      children: const [
+                        Icon(Icons.edit, color: Colors.orange),
+                        SizedBox(width: 8),
+                        Text("Editar"),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: "delete",
+                    child: Row(
+                      children: const [
+                        Icon(Icons.delete, color: Colors.red),
+                        SizedBox(width: 8),
+                        Text("Eliminar"),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+          ],
         ),
       ),
     );
