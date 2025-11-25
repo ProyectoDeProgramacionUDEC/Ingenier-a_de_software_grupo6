@@ -7,16 +7,13 @@ class SimilitudService {
     List<Reporte> todosLosReportes, {
     double similitudMinima = 0.8,
   }) {
-    final perdidos = todosLosReportes.where((r) => !r.encontrado).toList();
-    final encontrados = todosLosReportes.where((r) => r.encontrado).toList();
+    final perdidos = todosLosReportes.where((r) => !r.estado).toList();
+    final encontrados = todosLosReportes.where((r) => r.estado).toList();
     final List<Coincidencia> coincidencias = [];
 
     for (var perdido in perdidos) {
       for (var encontrado in encontrados) {
-        final similitud = _calcularSimilitud(
-          perdido.nombre,
-          encontrado.nombre,
-        );
+        final similitud = _calcularSimilitud(perdido.nombre, encontrado.nombre);
 
         if (similitud >= similitudMinima) {
           coincidencias.add(

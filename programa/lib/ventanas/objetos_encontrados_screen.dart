@@ -15,24 +15,20 @@ class EncontradosScreen extends StatelessWidget {
 
     return Consumer<ReporteService>(
       builder: (context, reporteService, child) {
-        
         // Pedimos la lista filtrada por seguridad
-        final listaSegura = reporteService.obtenerReportesVisibles(usuarioLogueado);
+        final listaSegura = reporteService.obtenerReportesVisibles(
+          usuarioLogueado,
+        );
 
         // Filtramos para esta pantalla ("Solo los Encontrados")
-        final encontrados = listaSegura
-            .where((r) => r.encontrado == true) 
-            .toList();
+        final encontrados = listaSegura.where((r) => r.estado == true).toList();
 
         return Scaffold(
           appBar: AppBar(title: const Text('Objetos Encontrados')),
 
-          body: encontrados.isEmpty 
-            ? const Center(child: Text("No hay reportes encontrados"))
-            : ListaReportes(
-                reportes: encontrados,
-                esAdmin: esAdmin, 
-              ),
+          body: encontrados.isEmpty
+              ? const Center(child: Text("No hay reportes encontrados"))
+              : ListaReportes(reportes: encontrados, esAdministrador: esAdmin),
         );
       },
     );

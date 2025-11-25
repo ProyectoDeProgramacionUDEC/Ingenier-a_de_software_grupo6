@@ -18,22 +18,23 @@ class ReporteAdapter extends TypeAdapter<Reporte> {
     };
     return Reporte(
       nombre: fields[0] as String,
+      descripcion: fields[1] as String,
       fecha: fields[2] as DateTime,
       imagenUrl: fields[3] as String,
-      encontrado: fields[4] as bool,
-      descripcion: fields[1] as String,
+      estado: fields[4] as bool,
       nombreUsuario: fields[5] as String,
       contactoUsuario: fields[6] as String,
       PersonalUdec: fields[7] as bool,
       tipoObjeto: fields[8] as bool,
       rutUsuario: fields[9] as String,
+      ubicacion: fields[10] as String, // <--- ESTO APARECERÁ SOLO
     );
   }
 
   @override
   void write(BinaryWriter writer, Reporte obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(11) // <--- Ahora dirá 11 campos
       ..writeByte(0)
       ..write(obj.nombre)
       ..writeByte(1)
@@ -43,7 +44,7 @@ class ReporteAdapter extends TypeAdapter<Reporte> {
       ..writeByte(3)
       ..write(obj.imagenUrl)
       ..writeByte(4)
-      ..write(obj.encontrado)
+      ..write(obj.estado)
       ..writeByte(5)
       ..write(obj.nombreUsuario)
       ..writeByte(6)
@@ -53,7 +54,9 @@ class ReporteAdapter extends TypeAdapter<Reporte> {
       ..writeByte(8)
       ..write(obj.tipoObjeto)
       ..writeByte(9)
-      ..write(obj.rutUsuario);
+      ..write(obj.rutUsuario)
+      ..writeByte(10) // <--- ESTO APARECERÁ SOLO
+      ..write(obj.ubicacion); // <--- ESTO APARECERÁ SOLO
   }
 
   @override

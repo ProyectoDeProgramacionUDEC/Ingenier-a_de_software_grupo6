@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:video_player/video_player.dart';
 import 'package:programa/widgets/VideoBackground.dart';
 import 'package:programa/Styles/Text.dart';
 import 'package:programa/Styles/app_colors.dart';
@@ -25,7 +24,10 @@ class _LoginScreenState extends State<LoginScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           icon: const Icon(Icons.person_add, color: AppColors.primay, size: 40),
-          title: const Text("Usuario no encontrado", style: TextStyle(fontWeight: FontWeight.bold)),
+          title: const Text(
+            "Usuario no encontrado",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           content: Text(
             "El RUT $rutIngresado no aparece en nuestros registros.\n\n¿Te gustaría crear una cuenta nueva?",
             textAlign: TextAlign.center,
@@ -36,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
               onPressed: () => Navigator.of(context).pop(),
               child: const Text("Intentar de nuevo"),
             ),
-            
+
             // Opción 2: Ir a registrarse
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -47,7 +49,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 Navigator.of(context).pop(); // Cierra el diálogo
                 // Navega a la pantalla de registro
                 Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => const RegistroScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const RegistroScreen(),
+                  ),
                 );
               },
               child: const Text("Registrarme"),
@@ -58,7 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-void _iniciarSesion(BuildContext context) {
+  void _iniciarSesion(BuildContext context) {
     final rut = _rutController.text.trim();
 
     if (rut.isEmpty) {
@@ -67,7 +71,7 @@ void _iniciarSesion(BuildContext context) {
     }
 
     final userService = Provider.of<UserService>(context, listen: false);
-    
+
     // Intentamos loguear
     final loginExitoso = userService.login(rut);
 
@@ -106,20 +110,18 @@ void _iniciarSesion(BuildContext context) {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true, 
+      extendBodyBehindAppBar: true,
       appBar: const CustomAppBar(
         title: "Objetos perdidos",
         showLogoutButton: false,
-        // backgroundColor: Colors.transparent, 
+        // backgroundColor: Colors.transparent,
       ),
       body: Stack(
         children: [
           const VideoBackground(),
 
           // Filtro Oscuro
-          Container(
-            color: AppColors.primay.withOpacity(0.6), 
-          ),
+          Container(color: AppColors.primay.withOpacity(0.6)),
 
           // CAPA 3: TU CONTENIDO (Formulario)
           Center(
@@ -162,7 +164,7 @@ void _iniciarSesion(BuildContext context) {
                           color: Colors.black.withOpacity(0.3),
                           blurRadius: 15,
                           offset: const Offset(0, 5),
-                        )
+                        ),
                       ],
                     ),
                     child: Column(
@@ -189,26 +191,31 @@ void _iniciarSesion(BuildContext context) {
                             ),
                             child: const Text(
                               'Iniciar Sesión',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
 
                         const SizedBox(height: 16),
-                        
+
                         // Botón de registro
                         TextButton(
                           onPressed: () {
                             Navigator.of(context).push(
-                              MaterialPageRoute(builder: (context) => const RegistroScreen()),
+                              MaterialPageRoute(
+                                builder: (context) => const RegistroScreen(),
+                              ),
                             );
                           },
                           child: const Text(
                             '¿No tienes cuenta? Regístrate aquí',
                             style: TextStyle(
                               color: AppColors.primay,
-                              fontWeight: FontWeight.w600
-                            ), 
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ],

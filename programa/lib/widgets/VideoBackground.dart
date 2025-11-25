@@ -32,9 +32,9 @@ class _VideoBackgroundState extends State<VideoBackground> {
 
   @override
   Widget build(BuildContext context) {
-    // Si el video aún no está listo, mostramos un color sólido 
+    // Si el video aún no está listo, mostramos un color sólido
     if (!_controller.value.isInitialized) {
-      return Container(color: AppColors.primay); 
+      return Container(color: AppColors.primay);
     }
     // -------------------------------
 

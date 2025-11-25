@@ -56,7 +56,11 @@ class DetalleReporteScreen extends StatelessWidget {
                     return Container(
                       height: 250,
                       color: Colors.grey[300],
-                      child: Icon(Icons.broken_image, size: 100, color: Colors.grey[600]),
+                      child: Icon(
+                        Icons.broken_image,
+                        size: 100,
+                        color: Colors.grey[600],
+                      ),
                     );
                   },
                 ),
@@ -71,35 +75,38 @@ class DetalleReporteScreen extends StatelessWidget {
             ),
             _DetalleItem(
               titulo: 'Descripción',
-              valor: reporte.descripcion.isEmpty 
-                  ? 'No se proporcionó descripción.' 
+              valor: reporte.descripcion.isEmpty
+                  ? 'No se proporcionó descripción.'
                   : reporte.descripcion,
               icono: Icons.description_outlined,
             ),
             _DetalleItem(
               titulo: 'Fecha del reporte',
-              valor: "${reporte.fecha.day}/${reporte.fecha.month}/${reporte.fecha.year}",
+              valor:
+                  "${reporte.fecha.day}/${reporte.fecha.month}/${reporte.fecha.year}",
               icono: Icons.calendar_today_outlined,
             ),
             _DetalleItem(
               titulo: 'Estado',
-              valor: reporte.encontrado ? 'Encontrado' : 'Perdido',
-              icono: reporte.encontrado ? Icons.check_circle_outline : Icons.search_outlined,
+              valor: reporte.estado ? 'Encontrado' : 'Perdido',
+              icono: reporte.estado
+                  ? Icons.check_circle_outline
+                  : Icons.search_outlined,
             ),
-            
+
             const Divider(height: 32),
 
             _DetalleItem(
               titulo: 'Reportado por',
-              valor: reporte.nombreUsuario.isEmpty 
-                  ? 'No especificado' 
+              valor: reporte.nombreUsuario.isEmpty
+                  ? 'No especificado'
                   : reporte.nombreUsuario,
               icono: Icons.person_outline,
             ),
             _DetalleItem(
               titulo: 'Contacto',
-              valor: reporte.contactoUsuario.isEmpty 
-                  ? 'No especificado' 
+              valor: reporte.contactoUsuario.isEmpty
+                  ? 'No especificado'
                   : reporte.contactoUsuario,
               icono: Icons.contact_phone_outlined,
             ),
@@ -131,7 +138,7 @@ class _DetalleItem extends StatelessWidget {
   }
 }
 
-  class ImageFullScreenViewer extends StatelessWidget {
+class ImageFullScreenViewer extends StatelessWidget {
   final String imageUrl;
   final String objectName;
 

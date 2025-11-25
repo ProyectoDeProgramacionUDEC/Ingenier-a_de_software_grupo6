@@ -4,12 +4,16 @@ import 'package:programa/componenetes/reporte_card.dart';
 
 class ListaReportes extends StatelessWidget {
   final List<Reporte> reportes;
-  final bool esAdmin;
+
+  final Function(Reporte)? onReporteChanged;
+
+  final bool esAdministrador;
 
   const ListaReportes({
     super.key,
     required this.reportes,
-    this.esAdmin = false,
+    this.onReporteChanged,
+    this.esAdministrador = false, // Por defecto false
   });
 
   @override
@@ -19,6 +23,8 @@ class ListaReportes extends StatelessWidget {
       itemBuilder: (context, index) {
         return ReporteCard(
           reporte: reportes[index],
+          // Conectamos la acción personalizada
+          onCustomAction: onReporteChanged,
         );
       },
     );

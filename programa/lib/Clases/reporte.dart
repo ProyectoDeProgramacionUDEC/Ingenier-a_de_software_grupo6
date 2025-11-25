@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 
 part 'reporte.g.dart';
 
-@HiveType(typeId: 1) // ID único para Reporte 
+@HiveType(typeId: 1) // ID único para Reporte
 class Reporte extends HiveObject {
   @HiveField(0)
   final String nombre;
@@ -13,7 +13,7 @@ class Reporte extends HiveObject {
   @HiveField(3)
   final String imagenUrl;
   @HiveField(4)
-  final bool encontrado;
+  final bool estado;
   @HiveField(5)
   final String nombreUsuario;
   @HiveField(6)
@@ -24,18 +24,21 @@ class Reporte extends HiveObject {
   final bool tipoObjeto;
   @HiveField(9)
   final String rutUsuario;
+  @HiveField(10)
+  final String ubicacion; // ✅ Nuevo: Para guardar las coordenadas GPS y texto
 
-  Reporte ({
+  Reporte({
     required this.nombre,
     required this.fecha,
     required this.imagenUrl,
-    required this.encontrado,
+    required this.estado,
     this.descripcion = '',
     this.nombreUsuario = '',
     this.contactoUsuario = '',
     required this.PersonalUdec,
     required this.tipoObjeto,
-    required this.rutUsuario
+    required this.rutUsuario,
+    required this.ubicacion,
   });
 
   Reporte copyWith({
@@ -43,24 +46,27 @@ class Reporte extends HiveObject {
     String? descripcion,
     DateTime? fecha,
     String? imagenUrl,
-    bool? encontrado,
+
+    bool? estado,
     String? nombreUsuario,
     String? contactoUsuario,
     bool? PersonalUdec,
     bool? tipoObjeto,
-    String? rutUsuario, 
+    String? rutUsuario,
+    String? ubicacion,
   }) {
     return Reporte(
       nombre: nombre ?? this.nombre,
       fecha: fecha ?? this.fecha,
       imagenUrl: imagenUrl ?? this.imagenUrl,
-      encontrado: encontrado ?? this.encontrado,
+      estado: estado ?? this.estado,
       descripcion: descripcion ?? this.descripcion,
       nombreUsuario: nombreUsuario ?? this.nombreUsuario,
       contactoUsuario: contactoUsuario ?? this.contactoUsuario,
       PersonalUdec: PersonalUdec ?? this.PersonalUdec,
       tipoObjeto: tipoObjeto ?? this.tipoObjeto,
-      rutUsuario: rutUsuario ?? this.rutUsuario
+      rutUsuario: rutUsuario ?? this.rutUsuario,
+      ubicacion: ubicacion ?? this.ubicacion,
     );
   }
 }

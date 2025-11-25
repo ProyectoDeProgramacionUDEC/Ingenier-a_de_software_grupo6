@@ -4,7 +4,6 @@ import 'package:programa/Clases/reporte.dart';
 import 'package:programa/Clases/usuario.dart';
 
 class ReporteService extends ChangeNotifier {
-  
   // Base de datos
   final Box<Reporte> _cajaReportes = Hive.box<Reporte>('box_reportes');
   List<Reporte> get _todosLosReportes => _cajaReportes.values.toList();
@@ -20,8 +19,7 @@ class ReporteService extends ChangeNotifier {
 
     // Si es usuario común, ve solo lo suyo
     return _todosLosReportes.where((reporte) {
-
-      return reporte.rutUsuario == usuarioLogueado.rut; 
+      return reporte.rutUsuario == usuarioLogueado.rut;
     }).toList();
   }
 
@@ -34,7 +32,7 @@ class ReporteService extends ChangeNotifier {
 
   // Actualizar
   void actualizarEstadoReporte(Reporte reporteOriginal, bool nuevoEstado) {
-    final reporteActualizado = reporteOriginal.copyWith(encontrado: nuevoEstado);
+    final reporteActualizado = reporteOriginal.copyWith(estado: nuevoEstado);
     _reemplazarEnHive(reporteOriginal, reporteActualizado);
   }
 
@@ -47,8 +45,8 @@ class ReporteService extends ChangeNotifier {
   // Método: Busca la llave del viejo y pone el nuevo en su lugar
   void _reemplazarEnHive(Reporte viejo, Reporte nuevo) {
     final key = _cajaReportes.keys.firstWhere(
-      (k) => _cajaReportes.get(k) == viejo, 
-      orElse: () => null
+      (k) => _cajaReportes.get(k) == viejo,
+      orElse: () => null,
     );
 
     if (key != null) {
@@ -61,13 +59,15 @@ class ReporteService extends ChangeNotifier {
   }
 
   void borrarReporte(Reporte reporte) {
-     final key = _cajaReportes.keys.firstWhere(
-        (k) => _cajaReportes.get(k) == reporte, orElse: () => null);
-     
-     if (key != null) {
-       _cajaReportes.delete(key);
-       print("Reporte eliminado de Hive.");
-       notifyListeners();
-     }
+    final key = _cajaReportes.keys.firstWhere(
+      (k) => _cajaReportes.get(k) == reporte,
+      orElse: () => null,
+    );
+
+    if (key != null) {
+      _cajaReportes.delete(key);
+      print("Reporte eliminado de Hive.");
+      notifyListeners();
+    }
   }
 }
