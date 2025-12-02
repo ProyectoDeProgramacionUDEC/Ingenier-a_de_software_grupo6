@@ -11,16 +11,20 @@ class VideoBackground extends StatefulWidget {
 
 class _VideoBackgroundState extends State<VideoBackground> {
   late VideoPlayerController _controller;
+  bool _visible = false;
 
   @override
   void initState() {
     super.initState();
     _controller = VideoPlayerController.asset("assets/videos/fondo_udec.mp4")
       ..initialize().then((_) {
-        _controller.play();
+        _controller.setVolume(0.0); 
         _controller.setLooping(true);
-        _controller.setVolume(0.0);
-        setState(() {});
+        _controller.play();
+        
+        setState(() {
+          _visible = true;
+        });
       });
   }
 
@@ -32,20 +36,39 @@ class _VideoBackgroundState extends State<VideoBackground> {
 
   @override
   Widget build(BuildContext context) {
-    // Si el video aún no está listo, mostramos un color sólido
-    if (!_controller.value.isInitialized) {
-      return Container(color: AppColors.primay);
-    }
-    // -------------------------------
-
     return SizedBox.expand(
-      child: FittedBox(
-        fit: BoxFit.cover,
-        child: SizedBox(
-          width: _controller.value.size.width,
-          height: _controller.value.size.height,
-          child: VideoPlayer(_controller),
-        ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // CAPA 1: Imagen de respaldo (mientras el video carga)
+          Container(
+            color: AppColors.primay,
+            child: Image.asset(
+              "assets/images/fondo_de_carga.png",
+              fit: BoxFit.cover,
+              color: Colors.black.withOpacity(0.5),
+              colorBlendMode: BlendMode.darken,
+              errorBuilder: (c, e, s) => Container(color: AppColors.primay),
+            ),
+          ),
+
+          AnimatedOpacity(
+            opacity: _visible ? 1.0 : 0.0,
+            duration: const Duration(milliseconds: 800),
+            child: FittedBox(
+              fit: BoxFit.cover,
+              child: SizedBox(
+                width: _controller.value.isInitialized
+                    ? _controller.value.size.width
+                    : 0,
+                height: _controller.value.isInitialized
+                    ? _controller.value.size.height
+                    : 0,
+                child: VideoPlayer(_controller),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
