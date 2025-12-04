@@ -2,6 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
 
 class MapaSeleccionScreen extends StatefulWidget {
   const MapaSeleccionScreen({super.key});
@@ -59,6 +62,28 @@ class _MapaSeleccionScreenState extends State<MapaSeleccionScreen> {
     }
   }
 
+  Future<String?> getAddressFromOSM(double lat, double lng) async {
+    final url =
+        'https://nominatim.openstreetmap.org/reverse?lat=$lat&lon=$lng&format=json';
+
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'User-Agent': 'flutter-app',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['display_name'];
+      }
+    } catch (e) {
+      print("Error obteniendo dirección OSM: $e");
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,7 +99,7 @@ class _MapaSeleccionScreenState extends State<MapaSeleccionScreen> {
               _controller.complete(controller);
             },
             onCameraMove: (CameraPosition position) {
-              // Actualizamos la variable cada vez que mueves el mapa
+              // Actualizamos la variable cada vez que se mueve el mapa
               _ubicacionSeleccionada = position.target;
             },
           ),
@@ -94,21 +119,31 @@ class _MapaSeleccionScreenState extends State<MapaSeleccionScreen> {
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 15),
               ),
-              onPressed: () {
-                print(
-                  "BOTÓN PRESIONADO. Datos a enviar: $_ubicacionSeleccionada",
-                );
-
+              onPressed: () async {
                 if (_ubicacionSeleccionada != null) {
-                  // Devuelve los datos A LA PANTALLA ANTERIOR
-                  Navigator.pop(context, _ubicacionSeleccionada);
+                  final lat = _ubicacionSeleccionada!.latitude;
+                  final lng = _ubicacionSeleccionada!.longitude;
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Obteniendo dirección...")),
+                  );
+
+                  // Obtenemos la dirección desde OSM
+                  final direccion = await getAddressFromOSM(lat, lng);
+                  
+                  final resultado = {
+                    "direccion": direccion ?? "Ubicación personalizada",
+                    "coordenadas": _ubicacionSeleccionada, 
+                  };
+
+                  print("Enviando datos: $resultado");
+
+                  if (context.mounted) {
+                    Navigator.pop(context, resultado);
+                  }
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        "Mueve el mapa un poco para detectar ubicación...",
-                      ),
-                    ),
+                    const SnackBar(content: Text("Mueve el mapa un poco para detectar ubicación...")),
                   );
                 }
               },

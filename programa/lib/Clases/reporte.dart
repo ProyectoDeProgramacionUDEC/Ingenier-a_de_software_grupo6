@@ -25,7 +25,7 @@ class Reporte extends HiveObject {
   @HiveField(9)
   final String rutUsuario;
   @HiveField(10)
-  final String ubicacion; // ✅ Nuevo: Para guardar las coordenadas GPS y texto
+  final String ubicacion;
 
   Reporte({
     required this.nombre,

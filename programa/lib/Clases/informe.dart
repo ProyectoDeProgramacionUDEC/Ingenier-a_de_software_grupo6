@@ -136,6 +136,8 @@ class PantallaVistaPrevia extends StatelessWidget {
                         'Fecha:',
                         "${reporte.fecha.day}/${reporte.fecha.month}/${reporte.fecha.year}",
                       ),
+                      _buildDetalleRow("Área del suceso: ", reporte.ubicacion),
+                      _buildDetalleRow("Coordenadas de ubicación: ",null),
                     ],
                   ),
                 ),

@@ -5,7 +5,8 @@ import 'package:programa/services/user_service.dart';
 import 'package:programa/ventanas/agregar_reporte_screen.dart';
 import 'package:programa/ventanas/detalle_reporte_screen.dart';
 import 'package:provider/provider.dart';
-// Asegúrate de tener estos imports correctos
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 
 class ReporteCard extends StatefulWidget {
   final Reporte reporte;
@@ -42,20 +43,24 @@ class _ReporteCardState extends State<ReporteCard> {
         // Imagen del objeto
         leading: ClipRRect(
           borderRadius: BorderRadius.circular(8),
-          child: Image.network(
-            widget.reporte.imagenUrl,
-            width: 60,
-            height: 60,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                width: 60,
-                height: 60,
-                color: Colors.grey[200],
-                child: Icon(Icons.image, color: Colors.grey[400]),
-              );
-            },
-          ),
+          child: widget.reporte.imagenUrl.startsWith('http')
+              ? Image.network(
+                  widget.reporte.imagenUrl,
+                  width: 60, height: 60, fit: BoxFit.cover,
+                  errorBuilder: (c, e, s) => Container(color: Colors.grey),
+                )
+              // Si no es http, revisamos si es Web o Móvil
+              : kIsWeb
+                  ? Image.network( // WEB: Tratamos la ruta local como URL
+                      widget.reporte.imagenUrl,
+                      width: 60, height: 60, fit: BoxFit.cover,
+                      errorBuilder: (c, e, s) => Container(color: Colors.grey),
+                    )
+                  : Image.file( // MÓVIL: Tratamos la ruta como archivo
+                      File(widget.reporte.imagenUrl),
+                      width: 60, height: 60, fit: BoxFit.cover,
+                      errorBuilder: (c, e, s) => Container(color: Colors.grey),
+                    ),
         ),
 
         title: Text(

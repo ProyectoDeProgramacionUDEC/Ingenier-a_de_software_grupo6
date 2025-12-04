@@ -15,7 +15,7 @@ void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(UsuarioAdapter());
   Hive.registerAdapter(ReporteAdapter());
-
+  
   await Hive.openBox<Usuario>('box_usuarios');
   await Hive.openBox<Reporte>('box_reportes');
 

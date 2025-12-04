@@ -69,7 +69,7 @@ class DetalleReporteScreen extends StatelessWidget {
             const SizedBox(height: 24),
 
             _DetalleItem(
-              titulo: 'Objeto',
+              titulo: 'Nombre del objeto',
               valor: reporte.nombre,
               icono: Icons.widgets_outlined,
             ),
@@ -92,6 +92,11 @@ class DetalleReporteScreen extends StatelessWidget {
               icono: reporte.estado
                   ? Icons.check_circle_outline
                   : Icons.search_outlined,
+            ),
+            _DetalleItem(
+              titulo: 'Ubicación',
+              valor: reporte.ubicacion,
+              icono: Icons.add_location_alt,
             ),
 
             const Divider(height: 32),

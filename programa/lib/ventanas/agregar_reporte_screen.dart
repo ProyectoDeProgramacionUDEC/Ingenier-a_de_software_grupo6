@@ -1,11 +1,14 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:programa/Clases/ReporteService.dart';
-import 'package:programa/Clases/reporte.dart';
-import 'package:programa/ventanas/api_google_maps_screen.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart'; 
 import 'package:provider/provider.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:programa/Clases/reporte.dart';
+import 'package:programa/Clases/ReporteService.dart';
 import 'package:programa/services/user_service.dart';
 import 'package:programa/Styles/app_colors.dart';
+import 'package:programa/ventanas/api_google_maps_screen.dart';
 
 class AgregarReporteScreen extends StatefulWidget {
   final bool personalUdec;
@@ -27,44 +30,36 @@ class AgregarReporteScreen extends StatefulWidget {
 
 class _AgregarReporteScreenState extends State<AgregarReporteScreen> {
   final _formKey = GlobalKey<FormState>();
-
-  // Controladores
+  
   final _nombreController = TextEditingController();
   final _descripcionController = TextEditingController();
   final _nombreUsuarioController = TextEditingController();
   final _contactoUsuarioController = TextEditingController();
   final _imagenUrlController = TextEditingController();
-  final _ubicacionManualController =
-      TextEditingController(); // Viene del GPS Feature
+  final _ubicacionManualController = TextEditingController();
 
   late DateTime _fechaSeleccionada;
   late bool _encontrado;
-  LatLng? _ubicacionGPS; // Viene del GPS Feature
+  LatLng? _ubicacionGPS;
 
   @override
   void initState() {
     super.initState();
-
-    // Caso: Edición
+    
     if (widget.reporteParaEditar != null) {
       _nombreController.text = widget.reporteParaEditar!.nombre;
       _descripcionController.text = widget.reporteParaEditar!.descripcion;
       _nombreUsuarioController.text = widget.reporteParaEditar!.nombreUsuario;
-      _contactoUsuarioController.text =
-          widget.reporteParaEditar!.contactoUsuario;
+      _contactoUsuarioController.text = widget.reporteParaEditar!.contactoUsuario;
       _imagenUrlController.text = widget.reporteParaEditar!.imagenUrl;
       _fechaSeleccionada = widget.reporteParaEditar!.fecha;
-
-      // Fusión: Cargamos estado y ubicación
       _encontrado = widget.reporteParaEditar!.estado;
       _ubicacionManualController.text = widget.reporteParaEditar!.ubicacion;
-    }
-    // Caso: Nuevo Reporte
+    } 
     else {
       _fechaSeleccionada = DateTime.now();
       _encontrado = widget.esEncontrado;
-
-      // Fusión: Pre-cargar datos del usuario logueado (Lógica de Login)
+      
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _cargarDatosUsuario();
       });
@@ -100,35 +95,40 @@ class _AgregarReporteScreenState extends State<AgregarReporteScreen> {
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
     );
-    if (fecha != null) setState(() => _fechaSeleccionada = fecha);
+
+    if (fecha != null) {
+      setState(() {
+        _fechaSeleccionada = fecha;
+      });
+    }
   }
 
-  // --- Lógica GPS (Del Feature) ---
+  Future<void> _seleccionarImagenGaleria() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? imagen = await picker.pickImage(source: ImageSource.gallery);
+
+    if (imagen != null) {
+      setState(() {
+        _imagenUrlController.text = imagen.path; 
+      });
+    }
+  }
+
   Future<void> _seleccionarUbicacion() async {
     final resultado = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const MapaSeleccionScreen()),
     );
 
-    if (resultado != null && resultado is LatLng) {
+    if (resultado != null && resultado is Map) {
       setState(() {
-        _ubicacionGPS = resultado;
-        String etiquetaGPS =
-            " [GPS: ${resultado.latitude.toStringAsFixed(5)}, ${resultado.longitude.toStringAsFixed(5)}]";
-        String textoActual = _ubicacionManualController.text;
-
-        if (textoActual.contains(" [GPS:")) {
-          textoActual = textoActual.split(" [GPS:")[0];
-        }
-
-        if (textoActual.isEmpty) {
-          _ubicacionManualController.text = "Ubicación GPS$etiquetaGPS";
-        } else {
-          _ubicacionManualController.text = "$textoActual$etiquetaGPS";
-        }
+        _ubicacionGPS = resultado["coords"];
+        String direccion = resultado["direccion"];
+        _ubicacionManualController.text = direccion;
       });
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("¡Ubicación precisa guardada y escrita!")),
+        const SnackBar(content: Text("¡Ubicación guardada!")),
       );
     }
   }
@@ -137,49 +137,40 @@ class _AgregarReporteScreenState extends State<AgregarReporteScreen> {
     if (_formKey.currentState!.validate()) {
       final userService = Provider.of<UserService>(context, listen: false);
       final usuarioLogueado = userService.usuarioLogueado;
-
-      // Lógica de RUT (Del HEAD - Seguridad)
-      String rutFirma = usuarioLogueado != null
-          ? usuarioLogueado.rut
-          : 'ANONIMO';
+      
+      String rutFirma = usuarioLogueado != null ? usuarioLogueado.rut : 'ANONIMO';
       if (widget.reporteParaEditar != null) {
         rutFirma = widget.reporteParaEditar!.rutUsuario;
       }
 
-      // Lógica de Ubicación (Del Feature - GPS)
-      String ubicacionFinal = _ubicacionManualController.text;
-
       final nuevoReporte = Reporte(
-        // Removido: id ya no se usa (Hive gestiona esto internamente)
         nombre: _nombreController.text,
         fecha: _fechaSeleccionada,
         imagenUrl: _imagenUrlController.text.isEmpty
             ? 'https://via.placeholder.com/150'
             : _imagenUrlController.text,
-        estado: widget.reporteParaEditar?.estado ?? false,
+        estado: _encontrado,
         descripcion: _descripcionController.text,
         nombreUsuario: _nombreUsuarioController.text,
         contactoUsuario: _contactoUsuarioController.text,
-        PersonalUdec:
-            widget.reporteParaEditar?.PersonalUdec ?? widget.personalUdec,
-        tipoObjeto: _encontrado,
+        PersonalUdec: widget.reporteParaEditar?.PersonalUdec ?? widget.personalUdec,
+        tipoObjeto: widget.reporteParaEditar?.tipoObjeto ?? true,
         rutUsuario: rutFirma,
-        ubicacion: ubicacionFinal,
+        ubicacion: _ubicacionManualController.text,
       );
 
       final service = Provider.of<ReporteService>(context, listen: false);
 
       if (widget.reporteParaEditar != null) {
-        // Usar el método actualizar (más limpio)
         service.actualizarReporte(widget.reporteParaEditar!, nuevoReporte);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Reporte actualizado')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Reporte actualizado')),
+        );
       } else {
         service.agregarNuevoReporte(nuevoReporte);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Reporte agregado')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Reporte agregado')),
+        );
       }
 
       Navigator.of(context).pop();
@@ -191,12 +182,14 @@ class _AgregarReporteScreenState extends State<AgregarReporteScreen> {
     final userService = Provider.of<UserService>(context);
     final esEdicion = widget.reporteParaEditar != null;
     final esAdmin = userService.usuarioLogueado?.esAdmin ?? false;
-    final camposBloqueados =
-        userService.isLoggedIn && !esAdmin; // Lógica de seguridad
+    final camposBloqueados = userService.isLoggedIn && !esAdmin;
+
+    String tituloBase = esEdicion ? 'Editar Reporte' : 'Agregar Reporte';
+    String sufijoTipo = _encontrado ? ' (Hallazgo)' : ' (Pérdida)';
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(esEdicion ? 'Editar Reporte' : 'Agregar Reporte'),
+        title: Text(tituloBase + sufijoTipo),
         backgroundColor: AppColors.primay,
         foregroundColor: AppColors.fuente,
       ),
@@ -206,7 +199,6 @@ class _AgregarReporteScreenState extends State<AgregarReporteScreen> {
           key: _formKey,
           child: ListView(
             children: [
-              // --- DATOS OBJETO ---
               TextFormField(
                 controller: _nombreController,
                 decoration: const InputDecoration(
@@ -214,9 +206,12 @@ class _AgregarReporteScreenState extends State<AgregarReporteScreen> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.description),
                 ),
-                validator: (value) => (value == null || value.isEmpty)
-                    ? 'Por favor ingresa un nombre'
-                    : null,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor ingresa un nombre';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -249,9 +244,9 @@ class _AgregarReporteScreenState extends State<AgregarReporteScreen> {
                   ),
                 ),
               ),
+              
               const SizedBox(height: 16),
 
-              // --- SECCIÓN UBICACIÓN + GPS (Fusión) ---
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -277,43 +272,78 @@ class _AgregarReporteScreenState extends State<AgregarReporteScreen> {
                               ? Colors.green
                               : AppColors.primay,
                         ),
-                        icon: const Icon(
-                          Icons.my_location,
-                          color: Colors.white,
-                        ),
+                        icon: const Icon(Icons.my_location, color: Colors.white),
                         tooltip: 'Ubicación Precisa',
                       ),
                       Text(
                         _ubicacionGPS != null ? "¡Listo!" : "GPS",
                         style: TextStyle(
                           fontSize: 10,
-                          color: _ubicacionGPS != null
-                              ? Colors.green
-                              : Colors.grey,
+                          color: _ubicacionGPS != null ? Colors.green : Colors.grey,
                         ),
                       ),
                     ],
                   ),
                 ],
               ),
+              
               const SizedBox(height: 16),
-
-              // --- IMAGEN ---
-              TextFormField(
-                controller: _imagenUrlController,
-                decoration: const InputDecoration(
-                  labelText: 'URL de la imagen (opcional)',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.image),
-                  hintText: 'https://ejemplo.com/imagen.jpg',
+              
+              InkWell(
+                onTap: _seleccionarImagenGaleria,
+                child: Container(
+                  height: 120,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: _imagenUrlController.text.isEmpty
+                      ? Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.add_a_photo, size: 40, color: Colors.grey),
+                            Text("Toca para subir una foto", style: TextStyle(color: Colors.grey)),
+                          ],
+                        )
+                      : ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: _imagenUrlController.text.startsWith('http')
+                              // Mantenemos la lógica antigua para no romper los casos anteriores
+                              ? Image.network(
+                                  _imagenUrlController.text,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (c,e,s) => const Icon(Icons.broken_image),
+                                )
+                              // Nueva imagen seleccionada desde galería
+                              : kIsWeb
+                                  ? Image.network(
+                                      _imagenUrlController.text,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (c, e, s) => const Icon(Icons.broken_image),
+                                    )
+                                  : Image.file(
+                                      File(_imagenUrlController.text),
+                                      fit: BoxFit.cover,
+                                    ),
+                        ),
                 ),
               ),
-
+              
+              if (_imagenUrlController.text.isNotEmpty)
+                Center(
+                  child: TextButton.icon(
+                    onPressed: _seleccionarImagenGaleria,
+                    icon: const Icon(Icons.refresh),
+                    label: const Text("Cambiar foto"),
+                  ),
+                ),
+              
               const SizedBox(height: 16),
               const Divider(),
               const SizedBox(height: 8),
 
-              // --- DATOS CONTACTO (Con lógica de bloqueo) ---
               const Text(
                 'Información de contacto',
                 style: TextStyle(
@@ -323,10 +353,10 @@ class _AgregarReporteScreenState extends State<AgregarReporteScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-
+              
               TextFormField(
                 controller: _nombreUsuarioController,
-                readOnly: camposBloqueados,
+                readOnly: camposBloqueados, 
                 decoration: InputDecoration(
                   labelText: 'Tu nombre',
                   border: const OutlineInputBorder(),
@@ -336,9 +366,6 @@ class _AgregarReporteScreenState extends State<AgregarReporteScreen> {
                       : null,
                   helperText: camposBloqueados ? "Vinculado a tu cuenta" : null,
                 ),
-                validator: (value) => (value == null || value.isEmpty)
-                    ? 'Por favor ingresa tu nombre'
-                    : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -353,53 +380,9 @@ class _AgregarReporteScreenState extends State<AgregarReporteScreen> {
                       : null,
                 ),
                 keyboardType: TextInputType.emailAddress,
-                validator: (value) => (value == null || value.isEmpty)
-                    ? 'Por favor ingresa un contacto'
-                    : null,
               ),
-
-              const SizedBox(height: 16),
-              const Divider(),
-
-              // --- SWITCH ESTADO ---
-              Card(
-                child: esEdicion
-                    ? SwitchListTile(
-                        title: const Text('¿Encontrado?'),
-                        subtitle: Text(
-                          _encontrado ? 'Objeto encontrado' : 'Objeto perdido',
-                        ),
-                        value: _encontrado,
-                        onChanged: (value) =>
-                            setState(() => _encontrado = value),
-                        secondary: Icon(
-                          _encontrado ? Icons.check_circle : Icons.search,
-                          color: _encontrado ? Colors.green : Colors.orange,
-                        ),
-                      )
-                    : ListTile(
-                        title: const Text('Tipo de Reporte'),
-                        subtitle: Text(
-                          _encontrado ? 'Objeto encontrado' : 'Objeto perdido',
-                          style: TextStyle(
-                            color: _encontrado ? Colors.green : Colors.orange,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        leading: Icon(
-                          _encontrado ? Icons.check_circle : Icons.search,
-                          color: _encontrado ? Colors.green : Colors.orange,
-                        ),
-                        trailing: const Icon(
-                          Icons.lock_outline,
-                          color: Colors.grey,
-                        ),
-                      ),
-              ),
-
+              
               const SizedBox(height: 24),
-
-              // --- BOTÓN FINAL ---
               ElevatedButton.icon(
                 onPressed: _agregarReporte,
                 icon: Icon(esEdicion ? Icons.save : Icons.add),
