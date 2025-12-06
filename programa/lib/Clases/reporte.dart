@@ -1,51 +1,72 @@
-class Reporte {
-  final String id; // Identificador único del reporte
+import 'package:hive/hive.dart';
+
+part 'reporte.g.dart';
+
+@HiveType(typeId: 1) // ID único para Reporte
+class Reporte extends HiveObject {
+  @HiveField(0)
   final String nombre;
+  @HiveField(1)
   final String descripcion;
+  @HiveField(2)
   final DateTime fecha;
+  @HiveField(3)
   final String imagenUrl;
-  final bool encontrado;
+  @HiveField(4)
+  final bool estado;
+  @HiveField(5)
   final String nombreUsuario;
+  @HiveField(6)
   final String contactoUsuario;
+  @HiveField(7)
   final bool PersonalUdec;
+  @HiveField(8)
   final bool tipoObjeto;
+  @HiveField(9)
+  final String rutUsuario;
+  @HiveField(10)
+  final String ubicacion;
 
   Reporte({
-    String? id, // Opcional, se genera automáticamente si no se proporciona
     required this.nombre,
     required this.fecha,
     required this.imagenUrl,
-    required this.encontrado,
+    required this.estado,
     this.descripcion = '',
     this.nombreUsuario = '',
     this.contactoUsuario = '',
     required this.PersonalUdec,
     required this.tipoObjeto,
-  }) : id = id ?? DateTime.now().millisecondsSinceEpoch.toString();
+    required this.rutUsuario,
+    required this.ubicacion,
+  });
 
   Reporte copyWith({
-    String? id,
     String? nombre,
     String? descripcion,
     DateTime? fecha,
     String? imagenUrl,
-    bool? encontrado,
+
+    bool? estado,
     String? nombreUsuario,
     String? contactoUsuario,
     bool? PersonalUdec,
     bool? tipoObjeto,
+    String? rutUsuario,
+    String? ubicacion,
   }) {
     return Reporte(
-      id: id ?? this.id,
       nombre: nombre ?? this.nombre,
       fecha: fecha ?? this.fecha,
       imagenUrl: imagenUrl ?? this.imagenUrl,
-      encontrado: encontrado ?? this.encontrado,
+      estado: estado ?? this.estado,
       descripcion: descripcion ?? this.descripcion,
       nombreUsuario: nombreUsuario ?? this.nombreUsuario,
       contactoUsuario: contactoUsuario ?? this.contactoUsuario,
       PersonalUdec: PersonalUdec ?? this.PersonalUdec,
       tipoObjeto: tipoObjeto ?? this.tipoObjeto,
+      rutUsuario: rutUsuario ?? this.rutUsuario,
+      ubicacion: ubicacion ?? this.ubicacion,
     );
   }
 }

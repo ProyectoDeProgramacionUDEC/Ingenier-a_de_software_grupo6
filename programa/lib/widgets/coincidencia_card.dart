@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:programa/coincidencia.dart';
 import 'package:programa/Clases/reporte.dart';
-import 'package:programa/ventanas/detalle_reporte_screen.dart';
 
 class CoincidenciaCard extends StatelessWidget {
   final Coincidencia coincidencia;
@@ -15,8 +14,7 @@ class CoincidenciaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final porcentajeTitulo = (coincidencia.similitudTitulo * 100).toStringAsFixed(0);
-    final porcentajeDescripcion = (coincidencia.similitudDescripcion * 100).toStringAsFixed(0);
+    final porcentaje = (coincidencia.similitud * 100).toStringAsFixed(0);
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -42,38 +40,18 @@ class CoincidenciaCard extends StatelessWidget {
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
+                        horizontal: 12,
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.blue.shade100,
+                        color: Colors.orange.shade100,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        'T: $porcentajeTitulo%',
+                        '$porcentaje% similar',
                         style: TextStyle(
-                          color: Colors.blue.shade900,
+                          color: Colors.orange.shade900,
                           fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.green.shade100,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        'D: $porcentajeDescripcion%',
-                        style: TextStyle(
-                          color: Colors.green.shade900,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
                         ),
                       ),
                     ),
@@ -91,18 +69,18 @@ class CoincidenciaCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             const Divider(),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
 
+            // Objeto Perdido
             _buildReporteInfo(
-              context,
               'Objeto Perdido',
               coincidencia.perdido,
               Colors.red.shade50,
             ),
             const SizedBox(height: 12),
 
+            // Objeto Encontrado
             _buildReporteInfo(
-              context,
               'Objeto Encontrado',
               coincidencia.encontrado,
               Colors.green.shade50,
@@ -114,28 +92,17 @@ class CoincidenciaCard extends StatelessWidget {
   }
 
   Widget _buildReporteInfo(
-    BuildContext context,
     String titulo,
     Reporte reporte,
     Color backgroundColor,
   ) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DetalleReporteScreen(reporte: reporte),
-          ),
-        );
-      },
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
@@ -192,7 +159,6 @@ class CoincidenciaCard extends StatelessWidget {
             ),
           ),
         ],
-      ),
       ),
     );
   }

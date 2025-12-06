@@ -1,14 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:programa/Styles/Text.dart';
-import 'package:programa/Styles/app_colors.dart';
-import 'package:programa/ventanas/Ventana_inicio_de_usuario.dart';
-import 'package:programa/Clases/ReporteService.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:provider/provider.dart';
+import 'package:programa/services/user_service.dart';
+import 'package:programa/Clases/ReporteService.dart';
+import 'package:programa/ventanas/login_screen.dart';
+import 'package:programa/ventanas/menu_principal_screen.dart';
+import 'package:programa/Clases/usuario.dart';
+import 'package:programa/Clases/reporte.dart';
+// import 'package:flutter_localizations/flutter_localizations.dart'; // Opcional: Para eventualmente poner las fechas en español
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp(),
-  );
+
+  await Hive.initFlutter();
+  Hive.registerAdapter(UsuarioAdapter());
+  Hive.registerAdapter(ReporteAdapter());
+  
+  await Hive.openBox<Usuario>('box_usuarios');
+  await Hive.openBox<Reporte>('box_reportes');
+
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -16,48 +27,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => ReporteService(),
-      
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => UserService()),
+        ChangeNotifierProvider(create: (context) => ReporteService()),
+      ],
       child: MaterialApp(
-        title: 'Objetos perdidos',
+        title: 'Objetos perdidos UdeC',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(primarySwatch: Colors.deepPurple),
-        builder: (context, child) {
-          return child!;
-        },
-        home: const MenuPrincipal(),
+        theme: ThemeData(primarySwatch: Colors.indigo, useMaterial3: true),
+        home: const LoginScreen(),
+        routes: {'/menu_principal': (context) => const MenuPrincipalScreen()},
       ),
-    );
-  }
-}
-
-class MenuPrincipal extends StatelessWidget {
-  const MenuPrincipal({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: Barra_arriba(context),
-      body: const VentanaInicioDeUsuario(),
-    );
-  }
-
-  AppBar Barra_arriba(BuildContext context) {
-    return AppBar(
-      backgroundColor: AppColors.primay,
-      foregroundColor: AppColors.secondary,
-      centerTitle: true,
-      leadingWidth: 200,
-      leading: Padding(
-        padding: const EdgeInsets.only(left: 10.0),
-        child: SizedBox(
-          width: 100,
-          height: 48,
-          child: Image.asset('assets/images/LogoUdec.png', fit: BoxFit.contain),
-        ),
-      ),
-      title: Text("Objetos perdidos", style: TextStyles.sansTitle),
     );
   }
 }

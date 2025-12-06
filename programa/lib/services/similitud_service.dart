@@ -1,39 +1,26 @@
 import 'package:string_similarity/string_similarity.dart';
 import 'package:programa/Clases/reporte.dart';
 import 'package:programa/coincidencia.dart';
-import 'dart:math';
 
 class SimilitudService {
   static List<Coincidencia> encontrarCoincidencias(
     List<Reporte> todosLosReportes, {
     double similitudMinima = 0.8,
   }) {
-    final perdidos = todosLosReportes.where((r) => !r.encontrado).toList();
-    final encontrados = todosLosReportes.where((r) => r.encontrado).toList();
+    final perdidos = todosLosReportes.where((r) => !r.estado).toList();
+    final encontrados = todosLosReportes.where((r) => r.estado).toList();
     final List<Coincidencia> coincidencias = [];
 
     for (var perdido in perdidos) {
       for (var encontrado in encontrados) {
-        final similitudTitulo = _calcularSimilitud(
-          perdido.nombre,
-          encontrado.nombre,
-        );
-        
-        final similitudDescripcion = _calcularSimilitud(
-          perdido.descripcion,
-          encontrado.descripcion,
-        );
+        final similitud = _calcularSimilitud(perdido.nombre, encontrado.nombre);
 
-        if (similitudTitulo >= 0.7 || similitudDescripcion >= 0.6) {
-          final similitudMaxima = max(similitudTitulo, similitudDescripcion);
-          
+        if (similitud >= similitudMinima) {
           coincidencias.add(
             Coincidencia(
               perdido: perdido,
               encontrado: encontrado,
-              similitud: similitudMaxima,
-              similitudTitulo: similitudTitulo,
-              similitudDescripcion: similitudDescripcion,
+              similitud: similitud,
             ),
           );
         }

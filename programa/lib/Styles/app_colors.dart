@@ -7,6 +7,7 @@ class AppColors {
   static const Color boton = Color(0xFF337AB7);
 
   //backgrounds
+  static const  Color fuente = Color.fromARGB(255, 255, 255, 255);
   static const Color background = Color(0xFF173961);
   static const Color backgroundComponent = Color.fromARGB(255, 219, 173, 88);
   static const Color backgroundComponentSelected = Color(0xFF413C3C);

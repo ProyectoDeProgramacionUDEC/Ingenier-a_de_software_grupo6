@@ -15,13 +15,24 @@ dependencies:
   printing: ^5.14.2
   provider: ^6.0.5
   string_similarity: ^2.0.0
+  video_player: ^2.8.1
+  video_player_win: ^3.2.2
+  hive_flutter: ^1.1.0
+  google_maps_flutter: ^2.14.0
+  geolocator: ^13.0.0
+  image_picker: ^1.0.7
+
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  hive_generator: ^2.0.1
+  build_runner: ^2.4.6
+  analyzer: ^6.4.1
 
 flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    - assets/videos/

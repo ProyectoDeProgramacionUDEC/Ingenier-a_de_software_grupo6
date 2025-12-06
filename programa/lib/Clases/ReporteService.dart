@@ -1,49 +1,73 @@
-import 'package:hive/hive.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:programa/Clases/reporte.dart';
+import 'package:programa/Clases/usuario.dart';
 
 class ReporteService extends ChangeNotifier {
-  final List<Reporte> _reportes = [];
-  List<Reporte> get reportes => _reportes;
+  // Base de datos
+  final Box<Reporte> _cajaReportes = Hive.box<Reporte>('box_reportes');
+  List<Reporte> get _todosLosReportes => _cajaReportes.values.toList();
 
+  // Lógica de filtrado
+  List<Reporte> obtenerReportesVisibles(Usuario? usuarioLogueado) {
+    if (usuarioLogueado == null) return [];
+
+    // Si es admin, puede verlo todo
+    if (usuarioLogueado.esAdmin) {
+      return _todosLosReportes;
+    }
+
+    // Si es usuario común, ve solo lo que esté asociado a el mismo
+    return _todosLosReportes.where((reporte) {
+      return reporte.rutUsuario == usuarioLogueado.rut;
+    }).toList();
+  }
+
+  // Agregar
   void agregarNuevoReporte(Reporte reporte) {
-    _reportes.add(reporte);
-    print('¡REPORTE RECIBIDO EN SERVICIO! Total actual: ${_reportes.length}');
+    _cajaReportes.add(reporte);
+    print('¡REPORTE GUARDADO EN HIVE! Total en BD: ${_cajaReportes.length}');
     notifyListeners();
   }
 
-  void actualizarEstadoReporte(Reporte reporte, bool nuevoEstado) {
-    // 1. Encontrar la posición (index) del reporte en la lista
-    final index = _reportes.indexOf(reporte);
+  // Actualizar
+  void actualizarEstadoReporte(Reporte reporteOriginal, bool nuevoEstado) {
+    final reporteActualizado = reporteOriginal.copyWith(estado: nuevoEstado);
+    _reemplazarEnHive(reporteOriginal, reporteActualizado);
+  }
 
-    // 2. Verificar que el reporte exista en nuestra lista
-    if (index != -1) {
-      // 3. Crear una NUEVA copia del reporte con el estado actualizado
-      final reporteActualizado = reporte.copyWith(encontrado: nuevoEstado);
+  // Modificar reporte
+  void actualizarReporte(Reporte reporteAntiguo, Reporte reporteNuevo) {
+    print("Actualizando reporte completo...");
+    _reemplazarEnHive(reporteAntiguo, reporteNuevo);
+  }
 
-      // 4. Reemplazar el reporte antiguo por el nuevo en la lista
-      _reportes[index] = reporteActualizado;
+  // Reemplazamos reporte en Hive
+  void _reemplazarEnHive(Reporte viejo, Reporte nuevo) {
+    final key = _cajaReportes.keys.firstWhere(
+      (k) => _cajaReportes.get(k) == viejo,
+      orElse: () => null,
+    );
 
-      print('Estado de reporte actualizado (con copyWith). Notificando...');
+    if (key != null) {
+      _cajaReportes.put(key, nuevo); // Sobrescribe en disco
+      print("Objeto actualizado exitosamente en Hive.");
       notifyListeners();
     } else {
-      print('Error: Se intentó actualizar un reporte que no está en la lista.');
+      print("Error: No se encontró el reporte original para actualizar.");
     }
   }
 
-  Future<void> respaldarEnHive() async {
-    //Próximam3ente: Implementar respaldo en Hive
-    print('Respaldando ${_reportes.length} reportes en Hive...');
-  }
+  void borrarReporte(Reporte reporte) {
+    final key = _cajaReportes.keys.firstWhere(
+      (k) => _cajaReportes.get(k) == reporte,
+      orElse: () => null,
+    );
 
-  void eliminarReporte(Reporte reporte) {
-    reportes.remove(reporte);
-    notifyListeners();
-  }
-
-  void actualizarReporte(Reporte reporteAntiguo, Reporte reporteNuevo) {
-    final index = _reportes.indexOf(reporteAntiguo);
-    _reportes[index] = reporteNuevo;
-    notifyListeners();
+    if (key != null) {
+      _cajaReportes.delete(key);
+      print("Reporte eliminado de Hive.");
+      notifyListeners();
+    }
   }
 }

@@ -1,63 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:programa/Clases/reporte.dart';
 import 'package:programa/Styles/appBar.dart';
+import 'package:programa/Styles/appBar.dart';
 import 'package:programa/Clases/informe.dart';
-import 'package:programa/ventanas/agregar_reporte_screen.dart';
 
 class DetalleReporteScreen extends StatelessWidget {
   final Reporte reporte;
-  final bool esAdministrador;
 
-  const DetalleReporteScreen({
-    super.key, 
-    required this.reporte,
-    this.esAdministrador = false,
-  });
+  const DetalleReporteScreen({super.key, required this.reporte});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: UdecAppBarRightLogo(title: "Detalle del Reporte"),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            heroTag: 'editBtn',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AgregarReporteScreen(
-                    esEncontrado: reporte.encontrado,
-                    personalUdec: reporte.PersonalUdec,
-                    reporteParaEditar: reporte,
-                    esAdministrador: esAdministrador,
-                  ),
-                ),
-              );
-            },
-            backgroundColor: Colors.orange[700],
-            foregroundColor: Colors.white,
-            tooltip: 'Editar Reporte',
-            child: const Icon(Icons.edit),
-          ),
-          const SizedBox(height: 10),
-          FloatingActionButton(
-            heroTag: 'pdfBtn',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => PantallaVistaPrevia(reporte: reporte),
-                ),
-              );
-            },
-            backgroundColor: Colors.blue[800],
-            foregroundColor: Colors.white,
-            tooltip: 'Generar Informe PDF',
-            child: const Icon(Icons.picture_as_pdf_outlined),
-          ),
-        ],
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Vista previa del PDF
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PantallaVistaPrevia(reporte: reporte),
+            ),
+          );
+        },
+        backgroundColor: Colors.blue[800],
+        foregroundColor: Colors.white,
+        tooltip: 'Generar Informe PDF',
+        child: const Icon(Icons.picture_as_pdf_outlined), // Icono de PDF
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -86,7 +55,11 @@ class DetalleReporteScreen extends StatelessWidget {
                     return Container(
                       height: 250,
                       color: Colors.grey[300],
-                      child: Icon(Icons.broken_image, size: 100, color: Colors.grey[600]),
+                      child: Icon(
+                        Icons.broken_image,
+                        size: 100,
+                        color: Colors.grey[600],
+                      ),
                     );
                   },
                 ),
@@ -95,41 +68,49 @@ class DetalleReporteScreen extends StatelessWidget {
             const SizedBox(height: 24),
 
             _DetalleItem(
-              titulo: 'Objeto',
+              titulo: 'Nombre del objeto',
               valor: reporte.nombre,
               icono: Icons.widgets_outlined,
             ),
             _DetalleItem(
               titulo: 'Descripción',
-              valor: reporte.descripcion.isEmpty 
-                  ? 'No se proporcionó descripción.' 
+              valor: reporte.descripcion.isEmpty
+                  ? 'No se proporcionó descripción.'
                   : reporte.descripcion,
               icono: Icons.description_outlined,
             ),
             _DetalleItem(
               titulo: 'Fecha del reporte',
-              valor: "${reporte.fecha.day}/${reporte.fecha.month}/${reporte.fecha.year}",
+              valor:
+                  "${reporte.fecha.day}/${reporte.fecha.month}/${reporte.fecha.year}",
               icono: Icons.calendar_today_outlined,
             ),
             _DetalleItem(
               titulo: 'Estado',
-              valor: reporte.encontrado ? 'Encontrado' : 'Perdido',
-              icono: reporte.encontrado ? Icons.check_circle_outline : Icons.search_outlined,
+              valor: reporte.estado ? 'Encontrado' : 'Perdido',
+              icono: reporte.estado
+                  ? Icons.check_circle_outline
+                  : Icons.search_outlined,
             ),
-            
+            _DetalleItem(
+              titulo: 'Ubicación',
+              valor: reporte.ubicacion,
+              icono: Icons.add_location_alt,
+            ),
+
             const Divider(height: 32),
 
             _DetalleItem(
               titulo: 'Reportado por',
-              valor: reporte.nombreUsuario.isEmpty 
-                  ? 'No especificado' 
+              valor: reporte.nombreUsuario.isEmpty
+                  ? 'No especificado'
                   : reporte.nombreUsuario,
               icono: Icons.person_outline,
             ),
             _DetalleItem(
               titulo: 'Contacto',
-              valor: reporte.contactoUsuario.isEmpty 
-                  ? 'No especificado' 
+              valor: reporte.contactoUsuario.isEmpty
+                  ? 'No especificado'
                   : reporte.contactoUsuario,
               icono: Icons.contact_phone_outlined,
             ),
@@ -161,7 +142,7 @@ class _DetalleItem extends StatelessWidget {
   }
 }
 
-  class ImageFullScreenViewer extends StatelessWidget {
+class ImageFullScreenViewer extends StatelessWidget {
   final String imageUrl;
   final String objectName;
 
